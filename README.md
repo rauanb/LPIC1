@@ -70,7 +70,79 @@
   * **"":** não protege **$**, **`** e **\\**
   * **\\:** só protege o próximo caractere especial
 
+
+
+### 103.2
+
+* **cat:** mostra o conteúdo do arquivo de texto que segue
+  * **-n:** linhas numeradas
+  * **-b:** linhas não nulas numeradas
+  * **-A:** destaca caracteres especiais
+* **tac:** mostra o conteúdo invertido
+* **head:** mostra o cabeçalho do arquivo que segue, geralmente 10 linhas
+  * **-nx ou -x:** mostra as primeiras **x** linhas
+  * **-cx:** mostra os primeiros **x** bytes
+* **tail:** mostra o final do arquivo que segue, geralmente 10 linhas
+  * mesmos parâmetros do **head**
+  * **-f:** mantém o arquivo aberto aguardando atualizações **~>** LOG
+* **less:** mostra o conteúdo do arquivo que segue de forma paginada
+  * **/:** pesquisa pela palavra que segue
+    *  **n:** vai para a próxima incidência
+    * **N:** volta na inciência anterior
+  * **q:** fecha o arquivo
+  * **|less:** muito usado para paginar a saída de outro comando
+* **wc:** mostra a quantidade de linhas, palvras e bytes do arquivo que segue
+  * **-l:** somente a quantidade de linhas
+  * **-w:** somente quantidade de palavras
+  * **-m:** somente a quantidade de caracteres
+* **nl:** numera as linhas sem considerar as vazias, igual ao **cat -b**
+* **sort:** ordena as linhas do arquivo que segue
+  * **-r:** ordem reversa
+  * **-kn:** ordena pelo campo de número **n**
+
+* **uniq:** mostra o conteúdo do arquivo que segue, ignorando repetições na sequência
+  * **sort arquivo | uniq:** ordena e exclui as repetições globais
+  * **-d:** mostra somente o que está duplicado
+  * **-c:** conta o número de repetições de cada inciência
+
+* **od:** mostra o conteúdo do arquivo que segue em formato octal
+  * **-tx:** mostra em hexadecimal
+
+* **join:** combina arquivos através de índice, por padrão o primeiro campo
+  * **join jn arquivo1 arquivo2:** considera o campo **n** como índice
+
+* **paste:** combina arquivos linha a linha
+* **split:** gera novos arquivos a partir da divisão do arquivo que segue
+  * **-ln ou n:** divide em razão de **n** linhas
+  * **-bn:** divide em razão de **n** bytes
+
+* **tr:** substitui ou deleta caracteres do arquivo **~>** uso obrigatório do **|** ou **tr < arquivo**
+  * **cat arquivo | tr a-z A-Z:** substitui letras minúsculas por maiúsculas
+  * **-d A:** deleta todas ocorrências de **A**
+  * **-s "caractere":** deleta as repetições de **caractere**
+
+* **cut:** recorta partes do arquivo que segue
+  * **-cn:** mostra apenas os **n** primeiros caracteres de cada linha
+  * **-d" ":** define o delimitador de campos como **espaço**
+    * **-fn,m:** mostra apenas os campos de número **n** e **m**
+    * **-fn-m:** mostra apenas os campos entre **n** e **m** (intervalo)
+
+* **sed:** substitui ou apaga linhas do arquivo que segue
+  * **sed 's/a/b/' arquivo:** substitui a primeira ocorrência de **a** por **b** em cada linha
+  *  **sed 's/a/b/g' arquivo:** substitui todas as ocorrências a **a** por **b**
+  * **sed 'n,m d' arquivo:** apaga o intervalo de linhas entre **n** e **m**
+  * **sed '/palavra/d' arquivo:** apaga todas as linhas que contém **palavra**
+
+* **grep:** filtra o arquivo que segue
+  * **grep teste:** mostra as linhas que contém **teste**
+  * **grep -v teste:** mostra as linhas que **não** contém **teste**, equivalente a **sed '/teste/d'**
+
+* **xzcat:** descompacta e mostra o conteúdo do arquivo **xz**
+* **bzcat:** descompacta e mostra o conteúdo do arquivo **bz2**
+* **zcat:** descompacta e mostra o conteúdo do arquivo **gz**
+
+* **checksum:** gera e compara hashs de arquivos
+  * **md5sum**, **sha1sum**, **sha256sum** e **sha512sum**
+  * rodar **sha256sum -c arquivosums** na pasta com o arquivo de interesse **E** o arquivosums
+
 ## 104
-
-
-
