@@ -26,6 +26,10 @@
     3. Navegar até o local e executar ./script.sh
 * **pwd:** mostra o diretório atual
 * **cd:** muda para o diretório que segue
+  * **-:** volta ao diretório anterior
+  * **..:** volta um diretório acima
+  * **~:** muda para o home do usuário atual
+
 * **Declaração de Variável Local:** NOME_VARIAVEL=valor
 * **Declaração de Variável Global:** export NOME_VARIAVEL=valor
 * **set:** mostra todas as variáveis, globais e locais
@@ -99,50 +103,136 @@
 * **sort:** ordena as linhas do arquivo que segue
   * **-r:** ordem reversa
   * **-kn:** ordena pelo campo de número **n**
-
 * **uniq:** mostra o conteúdo do arquivo que segue, ignorando repetições na sequência
   * **sort arquivo | uniq:** ordena e exclui as repetições globais
   * **-d:** mostra somente o que está duplicado
   * **-c:** conta o número de repetições de cada inciência
-
 * **od:** mostra o conteúdo do arquivo que segue em formato octal
   * **-tx:** mostra em hexadecimal
-
 * **join:** combina arquivos através de índice, por padrão o primeiro campo
   * **join jn arquivo1 arquivo2:** considera o campo **n** como índice
-
 * **paste:** combina arquivos linha a linha
 * **split:** gera novos arquivos a partir da divisão do arquivo que segue
   * **-ln ou n:** divide em razão de **n** linhas
   * **-bn:** divide em razão de **n** bytes
-
 * **tr:** substitui ou deleta caracteres do arquivo **~>** uso obrigatório do **|** ou **tr < arquivo**
   * **cat arquivo | tr a-z A-Z:** substitui letras minúsculas por maiúsculas
   * **-d A:** deleta todas ocorrências de **A**
   * **-s "caractere":** deleta as repetições de **caractere**
-
 * **cut:** recorta partes do arquivo que segue
   * **-cn:** mostra apenas os **n** primeiros caracteres de cada linha
   * **-d" ":** define o delimitador de campos como **espaço**
     * **-fn,m:** mostra apenas os campos de número **n** e **m**
     * **-fn-m:** mostra apenas os campos entre **n** e **m** (intervalo)
-
 * **sed:** substitui ou apaga linhas do arquivo que segue
   * **sed 's/a/b/' arquivo:** substitui a primeira ocorrência de **a** por **b** em cada linha
   *  **sed 's/a/b/g' arquivo:** substitui todas as ocorrências a **a** por **b**
   * **sed 'n,m d' arquivo:** apaga o intervalo de linhas entre **n** e **m**
   * **sed '/palavra/d' arquivo:** apaga todas as linhas que contém **palavra**
-
 * **grep:** filtra o arquivo que segue
-  * **grep teste:** mostra as linhas que contém **teste**
-  * **grep -v teste:** mostra as linhas que **não** contém **teste**, equivalente a **sed '/teste/d'**
-
+  * **grep palavra:** mostra as linhas que contém **palavra**
+  * **grep -v palavra:** mostra as linhas que **não** contém **palavra**, equivalente a **sed '/palavra/d'**
 * **xzcat:** descompacta e mostra o conteúdo do arquivo **xz**
 * **bzcat:** descompacta e mostra o conteúdo do arquivo **bz2**
 * **zcat:** descompacta e mostra o conteúdo do arquivo **gz**
-
 * **checksum:** gera e compara hashs de arquivos
   * **md5sum**, **sha1sum**, **sha256sum** e **sha512sum**
   * rodar **sha256sum -c arquivosums** na pasta com o arquivo de interesse **E** o arquivosums
+
+
+
+### 103.3
+
+* **ls:** lista arquivos e diretórios 
+
+  * **-a:** lista arquivos e diretórios ocultos
+  * **-l:** lista detalhada
+    * **d:** diretório **l:** link **nada:** arquivo
+  * **-h:** mostra o tamanho em **k**, **m** ou **g**
+  * **-R:** executa o comando recursivamente em todos os subdiretórios
+
+  **Modificadores:**
+
+  * ***** **:** substitui qualquer conjunto de caracteres
+  * **?:** substitui um único caractere
+  * **[ab]:** lista de caracteres
+  * **[!ab]:** nega a lista de caracteres
+  * **[n-m]:** intervalo de caracteres
+  * **{aa,bb}:** sequências de caracteres
+
+* **file:** mostra o tipo do arquivo que segue
+
+* **cp:** copia o arquivo que segue, sobrescreve sem perguntar, atualiza hora de modificação, permissões e usuário
+
+  * **cp arquivo destino**
+    * Se o destino for um diretório, mantém o nome original
+    * Para alterar o nome é só definir o nome no destino
+  * **-v:** detalha as operações
+  * **-i:** pergunta se deseja sobrescrever
+  * **-r:** copia o diretório que segue
+  * **-p:** preserva características do arquivo (hora de modificação, permissões e usuário)
+
+* **mv:** move os arquivos
+
+  * mesmos parâmetros do **cp**, com exceção a **-r** e **-p**
+  * usado para renomear arquivos
+
+* **touch:** cria ou atualiza hora de acesso/modificação do arquivo que segue
+
+  * **-a:** atualiza a hora de acesso
+  * **-m:** atualiza a hora de modificação
+  * **-t anomesdiahora: **define a data de modificação
+
+* **rm:** remove o arquivo que segue, sem confirmar
+
+  * **-i:** confirma a remoção
+  * **-r:** remove o diretório que segue
+
+* **rmdir:** remove diretórios vazios
+
+* **mkdir:** cria o diretório que segue
+
+  * **-p:** cria a estrutura de diretórios que segue
+
+* **find:** procura, no local que segue, arquivos e diretórios
+
+  * **-name:** procura por nome
+  * **-user:** procura por usuário
+  * **-ctime -n:** procura por tempo de modificação menor que **n** dias
+
+* **tar:** aglomera arquivos
+
+  * **tar arquivo.tar arquivos**
+  * **c:** cria um aglomerado
+  * **x:** extrai um aglomerado
+  * **t:** lista os itens de um aglomerado
+  * **p:** preserva as características
+  * **f:** cria o arquivo com o nome que segue
+  * **z:** compacta com **gzip**
+  * **j:** compacta com **bzip2**
+  * **J:** compacta com **xz**
+
+* **gzip:** compacta o arquivo que segue, substitui o arquivo original pelo compactado
+
+  * **-k:** mantém o arquivo original
+  * **-d:** descompacta o arquivo que segue
+
+* **bzip2 e xz:** outros compactadores, mesmos parâmetros do **gzip**
+
+* **cpio:** aglomera arquivos, obrigatório **|** e **>**
+
+  * **-o:** cria o arquivo que segue
+    * **ls arquivos | cpio -o > backup.cpio**
+  * para compactar
+    * **ls arquivos | cpio -o | gzip > backup.cpio.gz**
+  * **-i:** extrai o arquivo redirecionado
+    * **cpio -i < backup.cpio**
+  * **-d:** permite a criação de subdiretório na extração
+
+* **dd:** copia partições byte a byte
+  * **if=:** origem
+  * **of=:** destino
+    * se o destino for um diretório, copia o conteúdo
+    * para criar imagem é só definir **.img** no destino
 
 ## 104
