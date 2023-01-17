@@ -236,3 +236,37 @@
     * para criar imagem é só definir **.img** no destino
 
 ## 104
+
+* **STDIN:** entrada padrão (teclado), código **0**
+  * **comando < arquivo:** redireciona o **arquivo** para a entrada do **comando**
+  * **comando 1 | comando 2:** redireciona a saída do **comando 1** para a entrada do **comando 2**
+  * **comando << nome:** redireciona interativamente a entrada que segue para o **comando**
+    * Tudo que for inserido no terminal fará parte do "arquivo" de entrada do **comando**
+    * o "arquivo" de entrada é finalizado quando se entra com o **nome**
+  * **comando <<< arquivo:** redireciona o **arquivo** para a entrada do **comando** como se fosse uma string
+    * **tr a-z A-Z <<< arquivo:** resulta literamente em **ARQUIVO**
+* **STDOUT:** saída padrão (tela),  código **1**
+  * **1> ou >:** redirecionamento, cria ou sobrescreve o arquivo
+  * **1>> ou >>:** redirecionamento, cria ou adiciona o conteúdo no final do arquivo (**append**)
+* **STDERR:**  erro padrão (tela), código **2**
+  * **2>:** redirecionamento, cria ou sobrescreve o arquivo
+  * **2>>:** redirecionamento, cria ou adiciona o conteúdo no final do arquivo (**append**)
+  * Redirecionamento duplo, arquivos diferentes
+    * **comando > saida.out 2> saida-erro.out**
+  * Redirecionamento duplo, mesmo arquivo
+    * **comando > saida.out 2>&1**
+
+* Ordenar arquivo de texto e substituir original
+  1. Redirecionar a saída para arquivo temporário
+     * **sort arquivo > arquivo-temp**
+  2. Renomear arquivo temp
+     * **mv arquivo-temp arquivo**
+
+* **tee:** redireciona saída para arquivo e mostra na tela
+  * **comando | tee arquivo**
+* **xargs:** redireciona a saída de um comando para a entrada de outro
+  * **find /home -name "arquivos" | xargs ls -l**
+* **\`comando\` (crase) ou $(comando):** executa um comando dentro de outro
+  * **echo "A versão desse kernel é $(uname -r)"**
+* 
+
