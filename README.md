@@ -344,3 +344,22 @@
     * **tmux ls:** mostra as seções
     * **tmux attach -t n:** conecta na seção **n**
     * **tmux new -s nome:** cria uma nova seção **nome**
+
+### 103.6
+
+* **top:** observar o campos
+  * **PR:** prioridade definida pelo sistema
+  * **NI:** influência do usuário na prioridade (padrão 0)
+    * **-20** (maior prioridade) até **+19** (menor prioridade)
+    * root pode aumentar/diminuir prioridade de qualquer processo
+    * usuários comuns só podem diminuir prioridade e somente dos seus processos
+* **ps -la:** mesmo efeito
+* **nice:** definir o **NI** na inicialização de um processo (padrão 10)
+  * **-n x processo** ou **-x processo:** inicia o **processo** com **NI** de **x**
+  * **--adjustment=x:** mesmo efeito 
+  * para **NI negativo** fazer **-n -15**,  **--15** ou **--adjustment=-15**
+* **renice:** redefinir o **NI** de um processo em execução
+  * **-n x PID** ou **x PID**
+  * **-n x -u usuario:** define para todos os processos do **usuario**
+  * **-n x -g grupo:** define para todos os processos do **grupo**
+
