@@ -235,7 +235,7 @@
     * se o destino for um diretório, copia o conteúdo
     * para criar imagem é só definir **.img** no destino
 
-## 104
+### 103.4
 
 * **STDIN:** entrada padrão (teclado), código **0**
   * **comando < arquivo:** redireciona o **arquivo** para a entrada do **comando**
@@ -255,18 +255,92 @@
     * **comando > saida.out 2> saida-erro.out**
   * Redirecionamento duplo, mesmo arquivo
     * **comando > saida.out 2>&1**
-
 * Ordenar arquivo de texto e substituir original
   1. Redirecionar a saída para arquivo temporário
      * **sort arquivo > arquivo-temp**
   2. Renomear arquivo temp
      * **mv arquivo-temp arquivo**
-
 * **tee:** redireciona saída para arquivo e mostra na tela
   * **comando | tee arquivo**
 * **xargs:** redireciona a saída de um comando para a entrada de outro
   * **find /home -name "arquivos" | xargs ls -l**
 * **\`comando\` (crase) ou $(comando):** executa um comando dentro de outro
   * **echo "A versão desse kernel é $(uname -r)"**
-* 
 
+### 103.5
+
+* **PID:** Process ID, identificador de cada processo
+  * cada processo tem o seu processo pai **PPID**
+* **init:** sempre o primeiro processo **PID=1**
+* **ps:** mostra todos os processos rodando
+  * **-u:** mostra o usuário, uso de cpu e memória
+  * **-x:** mostra processos iniciados em outros **tty**
+  * **-a:** mostra essas informações de todos os usuários logados
+  * **-f:** mostra os processos em hierarquia
+  * **ps -axu | grep palavra** mostra todos os processos que tem **palavra** no nome
+* **pstree:** mostra os processos em hierarquia detalhada
+  * **-p:** mostra o **PID**
+  * aponta para o **systemd** como processo inicial, que corresponde ao **init**
+* **pgrep:** mostra os **PID** dos processos relacionados ao que segue
+  * **pgrep bash:** mostra os processos de bash iniciados
+  * **-u usuário:** mostra os processos do **usuário**
+* **top:** tela interativa de informações sobre processos e uso de recursos
+  * **load average:** média de 1min, 5 min e 15min
+    * Idealmente abaixo do número de núcleos do processador
+  * **SHIFT M:** classifica por uso e memória
+  * **SHIFT P:** classifica por uso do processador
+  * **u usuário:** mostra somente os processos do **usuário**
+  * **? ou h:** mostra o menu ajuda
+  * **top -b > arquivo.out:** executa o comando e joga para um arquivo
+* **kill:** envia sinal para um processo
+  * **-l:** lista todos os sinais possíveis (nome e número)
+    * **1 SIGHUP:** termina, reinicia ou faz o processo reler suas configurações
+    * **2 SIGINT:** interrompe o processo ~> **CTRL+C**
+    * **3 SIGQUIT:** fecha o processo
+    * **9 SIGKILL:** mata abruptamente ~> único sinal que não pode ser ignorado por um processo
+    * **15 SIGTERM:** solicita ao processo que finalize
+  * **PID:** mata o processo com o sinal **SIGTERM** (15)
+  * **-u usuario:** envia o sinal para o processo do **usuário** (somente root)
+  * **-s sinal PID ou -sinal PID:** envia o **sinal** (nome ou número) para o processo correspondente ao **PID**
+  * **kill \`pgrep nomeprocesso\`: ** resolve o pid e joga no kill (não funciona com **|**)
+    * **pkill nomeprocesso** tem o mesmo resultado
+* **killall:** mata processos pelo nome
+  * somente processos do usuário atual
+  * se for o root pode matar de qualquer usuário
+* **uptime:** hora atual, tempo ligado, número de usuário e load average
+* **free:** mostra o usu de memória física e swap
+  * **-m ou -g:** mostra em megas ou gigas
+  * a memória física em **used** significa que o sistema tem aquela memória alocada disponível, não que está necessariamente usando mesmo
+* **screen:** cria abas de terminal e protege os comandos de serem interrompidos por encerramento da seção
+  * **CTRL+A + C:** cria uma nova aba
+  * **CTRL+A + N:** vai para a próxima aba
+  * **CTRL+A + D:** desacopla do screen
+  * **CTRL+A + R:** acopla no screen
+  * **exit:** fecha a aba
+* **comando &:** executa o comando em background e libera o terminal
+  * mostra o id do **job** e o **PID**
+  * outra forma:
+    1. Executar o comando em foreground
+    2. **CTRL+Z** para parar o processo
+    3. **bg** para executar o último processo em background 
+* **jobs:** mostra os processos rodando em background
+  * **-l:** mostra também o seu **PID**
+* **bg:** executa a último processo em background
+  * **n:** executa o job de número **n** em background
+* **fg:** executa o último job em foreground
+  * **n:** executa o job de número **n** em foreground
+* **watch comando:** executa **comando** a cada 2s
+  * **-nx:** altera o tempo para **x** segundos
+* **tmux:** semelhante ao screen, mais completo
+  * **CTRL+B** para ativar algum comando
+    * **c:** cria uma nova janela
+    * **,:** renomeia a janela atual
+    * **w:** mostra as janelas existentes
+    * **n,p:** vai para a próxima (next) ou anterior (previous)
+    * **%:** cria um painel vertical e **"** cria horizontal
+      * **CTRL+B setas:** navega entre os painéis
+    * **d:** desconecta da seção
+    * **&:** mata a seção
+    * **tmux ls:** mostra as seções
+    * **tmux attach -t n:** conecta na seção **n**
+    * **tmux new -s nome:** cria uma nova seção **nome**
