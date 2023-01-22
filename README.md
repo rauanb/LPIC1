@@ -10,9 +10,11 @@
 
 ## 102
 
-## 103 (26/60)
+## 103 - *Comandos GNU e Unix* 
 
-### 103.1
+* 26 das 60 questões
+
+### 103.1 - Trabalhar na linha de comando
 
 * **echo:** joga para a saída padrão o que segue
   * **echo $SHELL:** mostra o shell que está sendo usado
@@ -76,7 +78,7 @@
 
 
 
-### 103.2
+### 103.2 - Processar fluxos de texto usando filtros
 
 * **cat:** mostra o conteúdo do arquivo de texto que segue
   * **-n:** linhas numeradas
@@ -141,7 +143,7 @@
 
 
 
-### 103.3
+### 103.3 - Gerenciamento básico de arquivos
 
 * **ls:** lista arquivos e diretórios 
 
@@ -235,7 +237,7 @@
     * se o destino for um diretório, copia o conteúdo
     * para criar imagem é só definir **.img** no destino
 
-### 103.4
+### 103.4 - Fluxos, pipes (canalização) e redirecionamentos de saída
 
 * **STDIN:** entrada padrão (teclado), código **0**
   * **comando < arquivo:** redireciona o **arquivo** para a entrada do **comando**
@@ -267,7 +269,7 @@
 * **\`comando\` (crase) ou $(comando):** executa um comando dentro de outro
   * **echo "A versão desse kernel é $(uname -r)"**
 
-### 103.5
+### 103.5 - Criar, monitorar e finalizar processos
 
 * **PID:** Process ID, identificador de cada processo
   * cada processo tem o seu processo pai **PPID**
@@ -345,7 +347,7 @@
     * **tmux attach -t n:** conecta na seção **n**
     * **tmux new -s nome:** cria uma nova seção **nome**
 
-### 103.6
+### 103.6 - Modificar a prioridade de execução de um processo
 
 * **top:** observar o campos
   * **PR:** prioridade definida pelo sistema
@@ -362,4 +364,66 @@
   * **-n x PID** ou **x PID**
   * **-n x -u usuario:** define para todos os processos do **usuario**
   * **-n x -g grupo:** define para todos os processos do **grupo**
+
+### 103.7 - Procurar em arquivos de texto usando expressões regulares
+
+* **grep:** filtro
+  * **palavra arquivo:** mostra as linhas do **arquivo** que contém **palavra** (case sentive)
+  * **-c:** conta as ocorrências
+  * **-i:** ignora o case sensitive
+  * **-r:** executa recursivamente nos subdiretórios
+  * **-E:** expande os padrões de RegEx do grep
+    * o comando **egrep** tem o mesmo efeito
+    * o comando **fgrep** não aceita RegEx
+  * **-v:** inverte a seleção, mostra somente as linhas que não atendem ao filtro
+
+* **egrep:** filtro com expansão de RegEx
+
+  * **"{n}"**: número de ocorrências do caractere anterior
+
+    * **"{n,m}":** de **n** a **m** ocorrências
+    * **"{,m}":** até **m** ocorrências
+    * **"{n,}":** no mínimo **n** ocorrências
+
+  * **"[]":** lista
+    * **"b[aei]g" arquivo:** linhas do **arquivo** que contém **bag**, **beg** ou **big**
+
+  * **Âncoras:**
+
+    * **"^":** começo da linha
+      * **"^#":** linhas que começam com **# ~> comentários**
+      * **-v "^#":** não mostra os comentários
+
+    * **"$":** fim da linha
+      * **"palavra$":** linhas que terminam com **palavra**
+      * **"^$":** linhas em branco
+
+
+    * **"\b":** começo da palavra (conjunto de caracteres e/ou números separados por _)
+      * palavras com **-** são consideradas duas palavras separadas
+
+  * **"*":** 0 ou qualquer repetição do caractere anterior
+
+    * **"b[aei]g*":** linhas que contém **b[aei]qualquercoisa** e **b[aei]gg**, **b[aei]ggg**, etc (além das já mostradas sem o **\***)
+
+  * **"+":** 1 ou mais ocorrências do caractere anterior
+
+  * **"?":** 0 ou 1 ocorrência do caractere anterior
+
+  * **".":** somente 1 ocorrência do caractere anterior
+
+  * **"\\":** protege o caractere seguinte **~>** transforma em string caracteres especiais **\***, **?**, etc
+
+* **sed:** substituir ou apagar linhas
+
+  * **'s/RegEx/substituto/s'** ou **'/RegEx/d'**
+
+
+
+
+### 103.8 - Edição básica de arquivos com o vi
+
+
+
+
 
