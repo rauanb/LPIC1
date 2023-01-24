@@ -115,8 +115,10 @@
   * **join jn arquivo1 arquivo2:** considera o campo **n** como índice
 * **paste:** combina arquivos linha a linha
 * **split:** gera novos arquivos a partir da divisão do arquivo que segue
+  * sem argumentos, divide a cada 1000 linhas
   * **-ln ou n:** divide em razão de **n** linhas
   * **-bn:** divide em razão de **n** bytes
+  
 * **tr:** substitui ou deleta caracteres do arquivo **~>** uso obrigatório do **|** ou **tr < arquivo**
   * **cat arquivo | tr a-z A-Z:** substitui letras minúsculas por maiúsculas
   * **-d A:** deleta todas ocorrências de **A**
@@ -423,7 +425,61 @@
 
 ### 103.8 - Edição básica de arquivos com o vi
 
+* **vi:** editor em modo texto **~>** em geral **vi** é um alias para o **vim**
+  * somente **vi** abre o editor com um arquivo em branco sem nome
+  * **modos:**
+    * **navegação:** modo iniciado por padrão **~>** uso das setas ou **hjkl**
+      * **h** &larr;	**j** &darr;	**k** &uarr;	**l** &rarr;	
+    * **inserção (i):** edição na posição atual do cursor **~>** **ESC** para voltar a **navegação**
+      * **o:** entra no modo edição na linha de baixo
+      * **O:** entra no modo edição na linha de cima
+      * **a:** entra no modo edição no caractere seguinte
+      * **A:** entra no modo edição no final da linha
+    * **comandos:** uso do **:**
+      * **w:** salva o arquivo
+      * **w novonome:** para salvar o arquivo com **novonome**
+      * **q:** fecha o arquivo (informa se há alterações não salvas)
+      * **q!:** fecha sem salvar
+      * **wq** ou **x:** salva e fecha
+      * **ZZ:** tem o mesmo efeito (sem digitar **:**)
+      * **!comandolinux:** executa o **comandolinux** e volta para o **vi** (após ENTER)
+      * **:!ls /tmp** por exemplo
+      * **e!:** atualiza o arquivo com as alterações feitas por outro usuário/processo após a abertura
+  * **/:** pesquisa pela palavra que segue (de cima para baixo)
+  * **n** vai para a próxima ocorrência, **N** volta para a anterior
+  * **?:** pesquisa pela palavra que segue (de baixo para cima)
+  * **dd:** recorta a linha
+  * **dnd:** recorta as próximas **n** linhas
+  * **cc:** recorta a linha e entra no modo edição
+  * **yy:** copia a linha
+  * **yny:** copia as próximas **n** linhas
+  * **p:** cola a linha copiada/recortada
 
+* **nano:** comandos na parte inferior da tela
 
+  * **^:** CTRL e **M:** ALT 
+  * **ALT + /:** final do arquivo
+  * **ALT + \:** começo do arquivo
+  * **CTRL + X:** fecha (pergunta se deseja salvar alterações)
+  * **CTRL + o:** salva 
+  * **CTRL + W:** pesquisa pela pavra que segue
 
+* **emacs:** roda tanto em interface gráfica quanto no shell
+
+  * **CTRL + x CTRL + s:** salva
+  * **CTRL + x CTRL + c:** fecha o arquivo
+
+  * **CTRL + k:** recorta a partir do cursor
+    * deixar cursor no começo da linha para recortar a linha toda
+    * armazena em buffer **~>** recortar várias linhas seguidas sem perder
+
+  * **CTRL + y:** cola o conteúdo
+  * **CTRL + /:** desfaz o último comando
+  * **ALT +x:** define a marcação de sintaxe por linguagem
+
+* **select-editor:** mostra as opções de editores para definir o padrão
+
+* **export $EDITOR=editor:** define o **editor** como padrão 
+
+​	
 
