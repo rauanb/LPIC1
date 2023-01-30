@@ -6,9 +6,89 @@
 
 * Tópicos 101, 102, 103 e 104
 
-## 101
+## 101 - Arquitetura de Sistema
 
-## 102
+### 101.1 - Identificar e editar configurações de hardware
+
+* **BIOS:** Basic Input Output System. firmware da placa mãe
+* **POST:** Power-On Self-Test, primeira ação
+* **IRQ:** Interrupt Request
+  * Sinais enviados ao CPU
+  * Localizados em /proc/interrupts
+  * 1 Teclado, 3 e  4 Porta Serial, 14 e 15 IDEs
+* **Endereços I/O:** endereços de memória usados na comunicação entre CPU e os outros dispositivos
+  * localizado em /proc/ioports
+* **Endereços DMA:** canal de comunicação direta entre alguns dispositivos e a memória
+  * localizado em /proc/dma
+* **lspci:** lista os dispositivos conectados via PCI
+  * **-s identificador:** mostra somente o dispositivo especificado
+  * **-v:** mostra mais detalhes
+* **lsusb:** lista os dispositivos conectados via USB
+  * **-s bus device:** mostra somente o dispositivo especificado
+* **partições virtuais:** criadas dinamicamente quando o sistema está em funcionamento
+  * **df:** mostra todas as partições, inclusive as virtuais
+  * **/proc:** informações sobre processos e hardware
+  * **/sys:** informações sobre hardware **(sysfs)**
+  * **/dev:** referências aos dispositivos, feitas pelo **(udev)**
+    * **dbus:** faz a comunicação entre os processos e dispositivos
+
+* **ColdPlug:** conexão a frio **~>** precisa desligar a máquina
+* **HotPlug:** conexão a quente **~>** máquina ligada
+* **Armazenamento:**
+  * **ATA:** 2 dispositivos por cabo
+    * **master:** hda e hdc
+    * **slave:** hdb e hdd
+
+  * **SATA:** 1 dispositivo por cabo
+    * sda, sdb...
+
+  * **SCSI:** 7 dispositivos (8bis) ou 15 dispositivos (16bits) + controladora
+    * sda, sdb..
+    * **/proc/scsi/scsi
+
+* **módulos:** equivalente a drivers
+  * **/lib/modules:** cada conjunto de módulos é associado ao um kernel
+  * **/etc/modules:** arquivo para o usuário definir módulos a serem carregados
+  * **lsmod:** lista os módulos atualmente carregados e que outro módulo está usando (dependência)
+    * consulta o conteúdo do **/proc/modules**
+
+  * **rmmod modulo:** remove o módulo que segue (descarrega)
+  * **insmod caminho:** carrega o módulo pelo **caminho**
+    * não carrega as dependências
+
+  * **modprobe modulo:** carrega o módulo pelo nome e também suas dependências
+    * **-r:** remove o módulo que segue junto com suas dependências
+
+
+### 101.2 - Início (boot) do sistema
+
+* Para computadores com **BIOS**
+
+1. **Bios:** localiza e executa a Master Boot Record
+2. **MBR:** Executa o Bootloader
+   - 512 bytes no primeiro setor do disco
+3. **Bootloader:** Grub ou Lilo, executa o Kernel e o initird
+   * 446 bytes da MBR
+   * **initird** ou **initramfs:** **/** carregador temporariamente em **RAM**
+4. **Kernel:** executa o /sbin/init
+5. **Init:** inicia os programas do runlevel
+
+* **demesg:** mostra as informações do boot
+  * não mostra só do boot, mas outras também relacionadas ao que foi feito após o boot
+
+* Para computadores com **UEFI**
+
+1. **UEFI:** lê a partição **ESP** e carrega o bootloader
+   * não lê dados da **MBR**
+   * **/boot/efi/ ~>** patição **FAT**
+   * partições do tipo **GPT ~>** suporta acima de 2TB 
+2. **Bootloader:**
+3. **Kernel:**
+4. **Init:**
+
+### 101.3 - Alternar runlevels/boot targets, desligar e reiniciar o sistema
+
+## 102 - Instalação do Linux e administração de Pacotes
 
 ## 103 - *Comandos GNU e Unix* 
 
