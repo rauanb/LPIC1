@@ -73,7 +73,7 @@
 4. **Kernel:** executa o /sbin/init
 5. **Init:** inicia os programas do runlevel
 
-* **demesg:** mostra as informações do boot
+* **dmesg:** mostra as informações do boot
   * não mostra só do boot, mas outras também relacionadas ao que foi feito após o boot
 
 * Para computadores com **UEFI**
@@ -87,6 +87,67 @@
 4. **Init:**
 
 ### 101.3 - Alternar runlevels/boot targets, desligar e reiniciar o sistema
+
+* **reboot:** reinicia, **poweroff:** desliga
+
+* **shutdown:** operações de desligamento e reboot
+
+  * avisa os outros usuários
+
+  * envia SIGTERM e depois SIGKILL para todos os processos
+
+  * permite programar desligamento/reinicialização
+
+  * sem argumentos desliga em 1 minuto
+  * **-r:** reinicia
+  * **-h:** halt, desliga o sistema mas não a máquina
+  * **-c:** cancela a operação
+  * **+x:** agenda a operação para após **x** minutos
+  * **hora:** agenda a operação
+
+* **wall "msg":** broadcast da **msg** para todos os usuários
+
+#### SYSV
+
+* gerenciador de serviços **~>** antigo init (PID 1)
+  * **ps -p 1:** mostra se é systemd ou sysv
+
+* **etc/inittab:** configuração principal
+  * **id:n:initdefault:** linha que define o run level padrão
+* **etc/rcn:** diretório do run level **n** com os serviços
+  * processos iniciados com **k** são para matar
+  * processos iniciados com **s** são para iniciar
+* **runlevel:** mostra o nível de execução do sistema
+  * **0:** desligamento (FIXO)
+  * **1**, **s**, **S:** (single) usuário único (FIXO)
+  * **2:** multi usuário sem rede (varia por distro)
+  * **3:** multi usuário com rede (varia por distro)
+  * **4:** multi usuário definido pelo usuário (varia por distro)
+  * **5:** multi usuário e gráfico (varia por distro)
+  * **6:** reinicialização (FIXO)
+* **init n** ou **telinit n:** muda para o run level **n**
+
+#### SYSTEMD
+
+* gerenciador de serviços compatível com sysv
+* não usa run levels **~>** target
+* **lib/sys/systemd/system:** diretório com os serviços
+  * **target.default:** é o link que aponta para o equivalente ao run level padrão
+* **systemctl:** usado para iniciar/encerrar, habilitar/desabilitar ou verificar status  das unidades/serviços
+  * **isolate target:** equivalente a mudar de run level para o **target**
+  * **get-default:** mostra o runlevel/target padrão
+
+#### UPSTART
+
+* gerenciador de serviços em crescimento compatível com systemd e init
+* **initctl:** equivalente ao **systemctl** para upstart
+
+#### ACPI
+
+* gerenciamento de energia
+* **acpid:** deamon (serviço em background) que coleta informações de energia, bateria, refrigeração
+
+
 
 ## 102 - Instalação do Linux e administração de Pacotes
 
