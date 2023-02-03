@@ -44,10 +44,10 @@
 
   * **SCSI:** 7 dispositivos (8bis) ou 15 dispositivos (16bits) + controladora
     * sda, sdb..
-    * **/proc/scsi/scsi
+    * **/proc/scsi/scsi**
 
 * **módulos:** equivalente a drivers
-  * **/lib/modules:** cada conjunto de módulos é associado ao um kernel
+  * **/lib/modules:** cada conjunto de módulos é associado a um kernel
   * **/etc/modules:** arquivo para o usuário definir módulos a serem carregados
   * **lsmod:** lista os módulos atualmente carregados e que outro módulo está usando (dependência)
     * consulta o conteúdo do **/proc/modules**
@@ -69,7 +69,7 @@
    - 512 bytes no primeiro setor do disco
 3. **Bootloader:** Grub ou Lilo, executa o Kernel e o initird
    * 446 bytes da MBR
-   * **initird** ou **initramfs:** **/** carregador temporariamente em **RAM**
+   * **initird** ou **initramfs:** **/** carregado temporariamente em **RAM**
 4. **Kernel:** executa o /sbin/init
 5. **Init:** inicia os programas do runlevel
 
@@ -82,9 +82,11 @@
    * não lê dados da **MBR**
    * **/boot/efi/ ~>** patição **FAT**
    * partições do tipo **GPT ~>** suporta acima de 2TB 
-2. **Bootloader:**
-3. **Kernel:**
-4. **Init:**
+2. **Bootloader**
+3. **Kernel**
+4. **Init**
+
+* **journalctl -b:** mostra logs do boot armazenados no systemd-journal
 
 ### 101.3 - Alternar runlevels/boot targets, desligar e reiniciar o sistema
 
@@ -114,6 +116,7 @@
 
 * **etc/inittab:** configuração principal
   * **id:n:initdefault:** linha que define o run level padrão
+  * **caminhoserviço start:** para iniciar um serviço
 * **etc/rcn:** diretório do run level **n** com os serviços
   * processos iniciados com **k** são para matar
   * processos iniciados com **s** são para iniciar
@@ -150,6 +153,56 @@
 
 
 ## 102 - Instalação do Linux e administração de Pacotes
+
+### 102.1 - Dimensionar partições de disco
+
+* **ponto de montagem:** diretório associado à partição
+* **partição:** divisão do disco
+  * mínimo de 2 partições **swap** e **/**
+    * **/** é a primeira partição montada pelo kernel
+    * precisam ser montadas no **/**
+      * informações de ponto de montagem **/etc**
+      * diretórios de programas/comandos **/bin** e **/sbin**
+      * diretórios dinâmicos **/dev**, **/proc** e **sys**
+  * impede alguns erros de se projetarem em outras partições
+  * facilita backup
+  * **0x83:** Linux FileSystem
+  * **0x82:** Linux Swap
+* **Master Boot Record:** limitado a 2 TB por partição
+  * inicialmente limitada a 4 partições primárias **~>** 3 primárias e 1 extendida
+    * partições primeiras **sda1** a **sda4**
+  * partição extendida pode alocar várias partições lógicas
+    * partições lógicas a partir de **sda5**
+* **GUID Partition Table:** utilizada pela maioria dos sistemas **EFI**
+* **Logical Volume Management**
+  * facilita o redimensionamento
+  * **Volume Group**
+  * **Physical Volume**
+  * **Logical Volume**
+  * **Physical Extent**
+  * **Logical Extent**
+* **df:** mostra as partições e seu ponto de montagem
+  * **-h:** mostra os tamanhos em KB, MB, GB
+  * **-T:** mostra o tipo de FileSystem
+    * identificar a partição que está montado o ESP **~>** typo **VFAT**
+    *  **df /boot/efi** tem o mesmo resultado
+* **fdisk -l:** lista os dispositivos de armazenamento e partições
+* **cat /proc/swaps:** mostra a swap
+  * **free** e **top** também mostram a swap
+* **efibootmgr:** mostra informações de boot
+  * **-v:** detalha as informações
+
+### 102.2 - Instalar o gerenciador de inicialização
+
+### 102.3 - Controle de bibliotecas compartilhadas
+
+### 102.4 - Utilização do sistema de pacotes Debian
+
+### 102.5 - Utilização do sistema de pacotes RPM e YUM
+
+### 102.6 - Linux virtualizado
+
+
 
 ## 103 - *Comandos GNU e Unix* 
 
