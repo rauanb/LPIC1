@@ -194,7 +194,26 @@
 
 ### 102.2 - Instalar o gerenciador de inicialização
 
+* **/boot/grub/grub.cfg:** principal arquivo de configuração do **GRUB 2**
+  * o adm configura os arquivos **/etc/default/grub** e de **/etc/grud.b/**
+  * **/boot/grub/menu.lst:** principal arquivo de configuração **Grub Legacy**
+* **update-grub** ou **grub-mkconfig -o /boot/grub/grub.cfg:** gera o arquivo
+* **hd0,1:** primeira partição do primeiro disco
+  * **hd0,0:** primeira partição do primeiro disco no **Grub Legacy**
+* **update-grub --version:** mostra a versão do grub
+* **dd if=/dev/sda of=backup.mbr bs=1 count=512:** faz um backup da mbr
+
 ### 102.3 - Controle de bibliotecas compartilhadas
+
+* aproveitamento de código já escrito
+* **estática:** incorporada na aplicação **~>** ocupa muito espaço em disco
+* **dinâmica:** as aplicações apontam para a lib **~>** economia de espaço (compartilhamento)
+* **ldd caminho/programa:** mostra as bibliotecas que o **programa** usa
+* **/lib** e **/usr/lib:** diretórios que contêm a maioria das bibliotecas
+* **ld.so.conf:** principal arquivo que contêm caminhos para libs adicionais
+  * **ldconfig:** atualiza o **cache** baseado no **conf**
+  * **ldconfig -p:** lista todas as libs carregadas no **cache**
+* **export LD_LIBRARY_PATH=caminho:** adiciona lib quando o usuário não é root (temporário)
 
 ### 102.4 - Utilização do sistema de pacotes Debian
 
