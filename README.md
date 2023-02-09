@@ -217,7 +217,91 @@
 
 ### 102.4 - Utilização do sistema de pacotes Debian
 
+* **dpkg:** principal gerenciador de pacotes
+  * **-l:** (L) lista os pacotes instalados
+  * **-I:**  (i) mostra informações sobre o pacote que segue
+  * **-s:** mostra o status do pacote que segue
+  * **--get-selection | grep pacote:** mostra se o pacote está instalado ou não
+  * **-L:** mostra os arquivos associados ao pacote que segue (instalado)
+  * **--contents:** mostra os arquivos dentro do pacote que segue
+  * **-i:** instala o pacote que segue
+  * **-S arquivo:** (source) mostra o pacote que gerou o arquivo que segue
+  * **-r:** remove o pacote que segue mantendo informações na base de dados
+  * **-P** ou **--purge:** apaga por completo o pacote e suas informações
+  * **-reconfigure:** configura com interação com usuário (alguns pacotes)
+* **apt-get:** gerenciador de pacotes por fontes
+  * **apt-cache show:** mostra informações do pacote que segue
+  * **apt-cache depends:** mostra as depedências do pacote que segue
+  * **/etc/apt/source.list:** lista de fontes de downloads
+  * **update:** atualiza a lista de fontes
+  * **upgrade:** baixa as novas versões de pacotes já instalados
+    * **dist-upgrade:** baixa somente se não houver conflitos
+  * **install:** instala o pacote que segue junto com suas dependências
+  * **remove:** remove o pacote mantendo informações na base de dados
+    * **purge:** apaga por completo o pacote e suas informações
+  * **-d** ou **--download-only:** somente baixa o pacote .deb para **/var/cache/apt/archives**
+* **dselect:** mostra um menu com os comandos do apt-get
+* **alien:** conversor de rpm para deb
+  * **-r:** converte deb para rpm
+  * **-i:** instala o pacote rpm usando dpkg
+
+* **apt:** gerenciador de pacotes que reune os principais comandos do apt-get e apt-cache
+  * **search:** pesquisa nas fontes pacotes relacionados com o termo que segue
+  * **show:** mostra informações do pacote que segue, mesmo que não esteja instalado
+  * 
+
 ### 102.5 - Utilização do sistema de pacotes RPM e YUM
+
+* **rpm:** gerenciador de pacotes equivalente ao dpkg
+  * **-q:** (query) consulta
+    * **-qR** ou **-q -requires:** mostra as dependências do pacote que segue
+    * **-qa:** lista todos os pacotes
+      * **-qa pacote:** mostra se o pacote está instalado
+    * **-qi:** informações sobre o pacote que segue
+    * **-ql:** lista o arquivos que pertencem a instalação do pacote que segue
+    * **-qc:** lista os arquivos de configuração do pacote que segue
+    * **-qd:** lista os arquivos de documentação do pacote que segue
+    * **-qf arquivo:** mostra o pacote responsável pelo **arquivo** que segue
+    * **-qlp pacote:** lista os arquivos internos ao arquivo rpm
+  * **-i:** instala o pacote rpm que segue
+    * **-ivh:** detalha (verbose) e mostra progresso (hash) 
+    * **--nodeps:** instala sem se preocupar com as dependências
+    * **--force:** sobrescreve arquivos pré existentes
+    * **--test:** somente testa a instalação
+  * **-U:** atualiza ou instala o pacote que segue
+    * mais utilizado que o **-i**
+    * mesmos argumentos que o **-i**
+  * **-e**: remove o pacote que segue
+    * **-evh:** detalha e mostra o progresso
+    * **--test:** somente testa a desinstalação
+    * **--nodeps:** ignora que o pacote a ser removido é dependência de outro
+  * **--verify** ou **-V:** verifica todos os pacotes ou o pacote que segue
+    * segundo campo (digest) indica que houve mudança no conteúdo **~>** md5
+  * **--checksig:** verifica o md5 do pacote que segue
+* **yum:** gerenciador de pacotes equivalente ao apt
+  * **/etc/yum.conf:** principal arquivo de configuração
+  * **/etc/yum.repos.d:** diretório de repositórios
+  * **install:** instala o pacote que segue com as suas dependências
+  * **update:** atualiza os pacotes
+    * diferente do  apt que somente atualiza os repositórios
+
+  * **upgrade:** atualiza os pacotes e remove os obsoletos
+  * **list:** lista todos os pacotes instalados
+  * **search:** pesquisa por pacotes que contêm o termo que segue
+  * **remove** ou **erase:** remove o pacote que segue
+  * **install --downloadonly:** somente baixa o pacote e suas dependências
+    * **--downloaddir=/local/desejado:** define o local de download 
+
+* **rpm2cpio pacote > destino:** converte o pacote rpm em cpio
+  * **cpio -i --make-directories < destino:** extrai o arquivo criando os diretórios necessários
+
+* **DNF:** baseado do yum, melhor uso de memório e resolução de dependências
+  * mesmo comandos do yum
+
+* **zypper:** equivalente ao yum para sistemas **SUSE**
+  * **refresh:** atualiza somente a base de dados
+  * **update:** atualiza o pacote que segue ou todos
+
 
 ### 102.6 - Linux virtualizado
 
