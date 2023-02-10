@@ -170,7 +170,7 @@
   * **0x82:** Linux Swap
 * **Master Boot Record:** limitado a 2 TB por partição
   * inicialmente limitada a 4 partições primárias **~>** 3 primárias e 1 extendida
-    * partições primeiras **sda1** a **sda4**
+    * partições primárias **sda1** a **sda4**
   * partição extendida pode alocar várias partições lógicas
     * partições lógicas a partir de **sda5**
 * **GUID Partition Table:** utilizada pela maioria dos sistemas **EFI**
@@ -184,7 +184,7 @@
 * **df:** mostra as partições e seu ponto de montagem
   * **-h:** mostra os tamanhos em KB, MB, GB
   * **-T:** mostra o tipo de FileSystem
-    * identificar a partição que está montado o ESP **~>** typo **VFAT**
+    * identificar a partição que está montado o ESP **~>** tipo **VFAT**
     *  **df /boot/efi** tem o mesmo resultado
 * **fdisk -l:** lista os dispositivos de armazenamento e partições
 * **cat /proc/swaps:** mostra a swap
@@ -244,11 +244,9 @@
 * **alien:** conversor de rpm para deb
   * **-r:** converte deb para rpm
   * **-i:** instala o pacote rpm usando dpkg
-
 * **apt:** gerenciador de pacotes que reune os principais comandos do apt-get e apt-cache
   * **search:** pesquisa nas fontes pacotes relacionados com o termo que segue
   * **show:** mostra informações do pacote que segue, mesmo que não esteja instalado
-  * 
 
 ### 102.5 - Utilização do sistema de pacotes RPM e YUM
 
@@ -295,8 +293,8 @@
 * **rpm2cpio pacote > destino:** converte o pacote rpm em cpio
   * **cpio -i --make-directories < destino:** extrai o arquivo criando os diretórios necessários
 
-* **DNF:** baseado do yum, melhor uso de memório e resolução de dependências
-  * mesmo comandos do yum
+* **DNF:** baseado do yum, melhor uso de memória e resolução de dependências
+  * mesmos comandos do yum
 
 * **zypper:** equivalente ao yum para sistemas **SUSE**
   * **refresh:** atualiza somente a base de dados
@@ -305,6 +303,18 @@
 
 ### 102.6 - Linux virtualizado
 
+* **VM:** Hypervisor, SO, libs e apps
+  * **HVM:** virtualização completa (réplica)
+  * **Paravirtualização** ou **PV:** OS modificado para virtualização
+* **Container:** Container Engine, libs e apps
+  * utiliza o kernel do host
+  * **LXC/LXD** e **Docker**
+  * **Imagem:** definição dos recursos
+  * **D-BUS MACHINE ID:** identificador único da vm/container
+* **cat /proc/cpuinfo | grep hypervisor:** verifica se é vm ou máquina real
+  * se não tiver saída é máquina real
+  * **dmesg | grep Hypervisor** tem o mesmo resultado
+  * **hostnamectl status** também mostra pelo campo Icon name
 
 
 ## 103 - *Comandos GNU e Unix* 
