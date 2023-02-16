@@ -81,7 +81,7 @@
 1. **UEFI:** lê a partição **ESP** e carrega o bootloader
    * não lê dados da **MBR**
    * **/boot/efi/ ~>** patição **FAT**
-   * partições do tipo **GPT ~>** suporta acima de 2TB 
+   * partições do tipo **GPT ~>** suporta acima de 2TB e até 128 partições
 2. **Bootloader**
 3. **Kernel**
 4. **Init**
@@ -158,6 +158,7 @@
 
 * **ponto de montagem:** diretório associado à partição
 * **partição:** divisão do disco
+  * **tipos:** primária, extendida e lógica
   * mínimo de 2 partições **swap** e **/**
     * **/** é a primeira partição montada pelo kernel
     * precisam ser montadas no **/**
@@ -168,6 +169,7 @@
   * facilita backup
   * **0x83:** Linux FileSystem
   * **0x82:** Linux Swap
+  
 * **Master Boot Record:** limitado a 2 TB por partição
   * inicialmente limitada a 4 partições primárias **~>** 3 primárias e 1 extendida
     * partições primárias **sda1** a **sda4**
@@ -510,6 +512,8 @@
   * **-name:** procura por nome
   * **-user:** procura por usuário
   * **-ctime -n:** procura por tempo de modificação menor que **n** dias
+  * **-size +XG:** arquivos maiores que **X** gb (pode ser usado m ou k também)
+    * **-YM:** arquivos menores que **Y** mb
 
 * **tar:** aglomera arquivos
 
@@ -707,9 +711,8 @@
       * **"palavra$":** linhas que terminam com **palavra**
       * **"^$":** linhas em branco
 
-
-    * **"\b":** começo da palavra (conjunto de caracteres e/ou números separados por _)
-      * palavras com **-** são consideradas duas palavras separadas
+* **"\b":** começo da palavra (conjunto de caracteres e/ou números separados por _)
+  * palavras com **-** são consideradas duas palavras separadas
 
   * **"*":** 0 ou qualquer repetição do caractere anterior
 
@@ -790,3 +793,238 @@
 
 ​	
 
+## 104 - Dispositivos, Sistemas de Arquivos e FHS
+
+### 104.1 - Criar partições e sistemas de arquivos
+
+* **fdisk:** partições MBR e GPT
+  * **gdisk:** somente partições GPT
+
+* **fdisk -l:** lista os discos e partições
+  * campo **Disk label tepy: dos** indica partição MBR
+* **fdisk /dev/sbd:** entra nas opções do disco **sdb**
+  * **m:** mostra o menu
+  * **n:** nova partição
+    * escolher primária (padrão) ou extendida
+    * número da partição
+    * primeiro setor
+    * último setor ou número de setores ou tamanho
+    * **TUDO SALVO EM MEMÓRIA, NADA APLICADO**
+  * **p:** lista as partições
+  * **q:** sai sem salvar
+  * **w:** salva e sai
+  * **d:** apaga partição a ser selecionada em seguida
+    * partições primárias pode apagar qualquer uma
+    * partições lógicas (dentro de uma extendida) são apagadas mas têm o número alterado para ficar sempre em sequência
+  * **t:** muda o tipo de partição através do **ID**
+  * **g:** cria uma tabela da partição GPT
+  * se alterar uma partição que contém o kernel em uso, as alterações sé serão aplicadas após reiniciar o sistema
+* **filesystem:** como o sistema vai distribuir os dados na partição
+  * **ext2** não tem journal, **ext3** e **ext4** têm
+  * **brtfs:** fs desenvolvido pela Oracle, nova geração
+  * **vfat:** fs do windows 
+  * **journal:** sistema de logs que registra alterações no sistema
+  * facilita a recuperação em caso de falha abrupta
+
+* **mkfs -t tipo partição:** cria o filesystem
+  * **mkfs.tipo** também pode ser usado
+
+* **mkswap:** cria o fs de swap
+  * **swapon** para ativar a swap
+
+
+- **file -s partição:** mostra o fs da partição
+- **parted:** semelhante ao fdisk, mas com mais opções **~>** aumentar partição
+- **parted /dev/sdb:** entra nas opções do disco **sdb**
+  - **resizepart número novo_final:** muda o tamanho da partição
+    - o novo final não pode entrar em outra partição
+
+#### BTRFS - B-Tree File System
+
+* fs moderno e em constante desenvolvimento
+* tolerância a falhas
+* facilidade de administração e reparo
+* suporte a RAID e subvolumes
+* compressão transparente
+* snapshot
+* conversão direta de ext2, ext3 e ext4 em btrfs
+
+#### exFAT - ExtendedFAT ou FAT64
+
+* otimizado para armazenamentos removíveis **~>** pen drives e cartões de memória
+* mais leve que NTFS
+* permite arquivos maiores que 4gb
+* **proprietário** (MS) **~>** implementado através de pacotes exfat-fuse e exfat-utils
+* **mkfs.exfat partição**
+
+### 104.2 - Manutenção da integridade de sistemas de arquivos
+
+* **fsck:** checa o filesystem de uma partição não montada
+* **xfs_repair:** checa o filysistem de partições xfs
+* **xfs_db:** debug de partição xfs
+  * **frag:** mostra fragmentação da partição
+  * **xfs_fsr:** desfragmenta a partição
+
+* **tune2fs **
+  * **-l:** mostra informações da partição que segue
+  * **-L nome:** define a label da partição
+  * **-i xd:** define checagem automática para **x** dias na partição que segue
+
+
+#### df 
+
+* partições e pontos de montagem
+* **df -h partição:** mostra informações da partição em formato humano
+* **-T:** mostra o tipo de partição
+* **-t tipo:** mostra somente partições do tipo especificado
+* **-i:** mostra a ocupação de inodes (índices)
+  * pode ocorrer falta de espaço de inodes mesmo com espaço em disco disponível
+
+#### du
+
+* mostra o tamanho dos arquivos e diretórios
+* **--max-depth=x:** limite a busca a x níveis a partir do diretório atual
+
+#### Investigar espaço em disco
+
+1. **df -h:** identificar o ponto de montagem com falta de espaço
+2. **du -hs /ponto/de/montagem/*:** identificar o diretório com maior ocupação
+3. **du -hs /ponto/de/montagem/diretório/*:** repetir o processo até localizar os diretórios/arquivos a serem apagados/movidos
+
+### 104.3 - Controle da montagem e desmontagem dos sistemas de arquivos
+
+* **mount:** monta temporariamente a partição que segue
+  * fstab parâmetro **user:** qualquer usuário pode montar, mas somente quem montou pode desmontar
+  * fstab parâmetro **users:** qualquer usuário pode montar e demontar
+  * se a partição não estiver no fstab, deve ser definido o ponto de montagem após a partição (somente root)
+  * **-a:** monta tudo que está no fstab
+  * **--bind:** monta um diretório no outro (associação)
+
+* **unmount:** desmonta temporariamente a partição/ponto de montagem que segue
+  * **-a:** desmonta tudo que está no fstab que não está sendo usado no momento
+* **/etc/fstab:** arquivo de configuração com informações de montagem
+  * cada linha uma partição
+  * <file system> pode ser o UUID, partição ou filesystem volume name
+  * <mount point> diretório a ser montada a partição
+    * **swap** não tem ponto de montagem, deixado como **none**
+  * <type> tipo de fs, pode ser deixado como **auto**
+  * <options> parâmetros adicionais, pode ser deixado como **defaults**
+  * <dump> tipo de backup antigo, para não realizar deixar em **0**
+  * <pass> é a ordem de fsck, para não realizar no boot deixar em **0**
+    * a partição **/** em geral é a primeira a fazer o fsck, tem o pass **1**
+* **blkid:** mostra o UUID de cada partição
+* **lsblk:** mostra a estrutura de árvore dos discos e partições
+  * **-f:** mostra também o fs, UUID e lable
+
+* Por ser usado o **systemctl** para montar uma partição baseado em um arquivo de montagem em **/lib/systemd/system**
+  * **systemctl list-units --type=mount:** lista todas as unidades de montagem
+
+
+### 104.4 - REMOVIDO
+
+### 104.5 - Controlar permissões e propriedades de arquivos
+
+#### Bits de Modos de Acesso
+
+* **ls -l** mostra as permissões no diretório (não mostra os atributos especiais)
+* diretório tem que ter **x** para ser acessível
+* 12 bits
+  * **Atributos Especiais:** SUID, SGID e Stick
+  * **Usuário:** leitura, escrita e execução
+  * **Grupo:** leitura, escrita e execução
+  * **Outros:** leitura, escrita e execução
+* **chmod alvos_operações_permissão arquivo:**
+  * **alvo:** (u)ser, (g)roup, (o)thers ou (a)ll
+  * **operação:** **+**, **-** ou **=**
+  * **permissão:** (r)ead, (w)rite ou e(x)ecute
+  * **chmod g-w arquivo**
+  * **-R:** recursivamente nos arquivos/diretórios internos
+* **chmod octal arquivo:**
+  * usuário, grupo e outros
+  * leitura(4), escrita (2) e execução (1)
+  * (rwx)(rwx)(r-x) **~>** 775
+  * **-R:** recursivamente nos arquivos/diretórios internos
+* **stat:** mostra as permissões do arquivo/diretório que segue através do inode
+
+#### Atributos Especiais
+
+* **SUIG:** executado com as permissões de quem o criou, não de quem está executando
+  * aplicado a scripts que precisa de acesso root
+  * indicado pelo **s** nas permissões (rw**s**)(rwx)(rw)
+  * **chmod u+s arquivo**
+* **SGID:** executado com as permissões do grupo, não de quem está executando
+  * indicado pelo **s** nas permissões (rwx)(rw**s**)(rw)
+  * **chmod g+s arquivo**
+  * aplicado a diretórios, todos os arquivos criados dentro pertencem ao grupo do diretório
+* **Stick:** 
+  * aplicado a um arquivo, só quem o criou pode apagar/renomear
+  * aplicado a um diretório, só quem o criou pode apagar/renomear arquivos dentro
+  * indicado pelo **t** nas permissões (rwx)(rwx)(rw**t**)
+  * **chmod o+t arquivo**
+  * diretório **/tmp** é um exemplo
+* todos os atributos podem ser aplicados no modo octal
+  * SUID(4), SGID(2) e Stick(1)
+  * **chmod 4774:** SUID rwxrwxr
+* **umask:** subtração da base para criação de arquivo/diretório
+  * base arquivo: 666
+    * ao criar um arquivo, ele terá as permissões 666-umask
+    * se umask for 0002 **~>** arquivo 664 rw-rw-r--
+  * base diretório: 777
+    * ao criar um diretório, ele terá as permissões 777-umask
+    * se umask for 0002 **~>** diretório 775 rwx-rwx-r-x
+* **chown:** muda o dono do arquivo/diretório que segue(somente root pode executar)
+  * **usuário:** muda o usuário dono
+  * **:grupo:** muda o grupo dono (pode ser usado **.** ou **:**)
+  * **usuário:grupo** ou **usuário.grupo:** muda o usuário e o grupo
+  * **-R:** muda recursivamente nos arquivos/diretórios internos
+
+* **chgrp:** muda somente o grupo dono do arquivo/diretório que segue
+
+### 104.6 - Criar e alterar links simbólicos e hardlinks
+
+* **ln arquivo atalho:** cria um hard link para o arquivo (atalho)
+  * **ls -li:** mostra tanto arquivo como atalho apontam para o mesmo inode (primeiro campo)
+    * mostra também que para esse inode há mais de uma referência (terceiro campo)
+    * diretórios sempre tem 2 por conta do atalho **.** dentro que representa o diretório
+  * mesmo excluindo o arquivo original, o atalho continua funcionando
+  * só pode criar um link hard para um arquivo da mesma partição
+  * não é possível criar hard links para diretórios
+* **ln -s arquivo atalho:** cria um link simbólico (arquivo que aponta para outro)
+  * é outro inode
+  * permissão sempre 777
+  * pode apontar para outra partição
+  * pode apontar para diretórios
+  * o tamanho do link é o número de bits do caminho até o arquivo
+
+### 104.7 - Encontrar arquivos de sistema e conhecer sua localização correta
+
+#### FHS: Hierarquia Padrão de Sistema de Arquivos
+
+* **/bin:** programas críticos de todos usuários
+* **/sbin:** programas críticos de administrador
+* **/etc:** arquivos de configuração do sistema
+* **/lib:** bibliotecas e módulos do kernel
+* **/mnt** e **/media:** pontos de montagem de mídias externas
+* **/proc** e **/sys:** diretórios dinâmicos de informações de hardware e processos
+* **/dev:** dispositivos e arquivos especiais
+* **/root:** diretório padrão do root
+* **/boot:** arquivos de configuração do bootloader e imagens do kernel e initd
+* **/var:** arquivos dinâmicos, logs, caches
+* **/opt:** programas não críticos
+* **/usr:** programas não críticos
+  * **/local:** arquivos que o administrador instala
+  * **/bin:** comandos não essenciais de todos os usuários
+  * **/sbin:** comandos não essenciais do administrador
+  * **/lib:** bibliotecas dos programas instalados
+  * **/share/man:** fontes do man
+
+#### Localização de arquivos
+
+* **find:** ver item **103.3**
+
+* **locate:** busca baseada em uma base de dados
+  * mais rápido que o find
+  * atualizada a cada inicialização do sistema
+  * **updatedb** atualiza manualmente
+* **whereis:** busca comandos, arquivos de sistema, libs e fontes de man
+* **which:** busca somente no PATH a primeira correspondência à busca
