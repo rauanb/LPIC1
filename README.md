@@ -10,7 +10,7 @@
 
 ### 101.1 - Identificar e editar configurações de hardware
 
-* **BIOS:** Basic Input Output System. firmware da placa mãe
+* **BIOS:** Basic Input Output System, firmware da placa mãe
 * **POST:** Power-On Self-Test, primeira ação
 * **IRQ:** Interrupt Request
   * Sinais enviados ao CPU
@@ -24,7 +24,8 @@
   * **-s identificador:** mostra somente o dispositivo especificado
   * **-v:** mostra mais detalhes
 * **lsusb:** lista os dispositivos conectados via USB
-  * **-s bus device:** mostra somente o dispositivo especificado
+  * **-s bus:device:** mostra somente o dispositivo especificado
+  * **lsusb -s bus:device -v:** mostra com detalhes o dispositivo
 * **partições virtuais:** criadas dinamicamente quando o sistema está em funcionamento
   * **df:** mostra todas as partições, inclusive as virtuais
   * **/proc:** informações sobre processos e hardware
@@ -70,7 +71,9 @@
 3. **Bootloader:** Grub ou Lilo, executa o Kernel e o initird
    * 446 bytes da MBR
    * **initird** ou **initramfs:** **/** carregado temporariamente em **RAM**
+     * primeira partição a ser montada **~>** /
 4. **Kernel:** executa o /sbin/init
+   * **/proc/cmdline** contém parâmetros enviados ao kernel
 5. **Init:** inicia os programas do runlevel
 
 * **dmesg:** mostra as informações do boot
@@ -171,7 +174,7 @@
   * **0x82:** Linux Swap
   
 * **Master Boot Record:** limitado a 2 TB por partição
-  * inicialmente limitada a 4 partições primárias **~>** 3 primárias e 1 extendida
+  * limitada a 4 partições primárias **OU** 3 primárias e 1 extendida (extendida não aparece no **df**)
     * partições primárias **sda1** a **sda4**
   * partição extendida pode alocar várias partições lógicas
     * partições lógicas a partir de **sda5**
@@ -196,8 +199,10 @@
 
 ### 102.2 - Instalar o gerenciador de inicialização
 
+* **linux:** parâmetro que indica o kernel a ser carregado
 * **/boot/grub/grub.cfg:** principal arquivo de configuração do **GRUB 2**
   * o adm configura os arquivos **/etc/default/grub** e de **/etc/grud.b/**
+    * **GRUB_DEFAULT:** parâmetro que indica o sistema iniciado por padrão
   * **/boot/grub/menu.lst:** principal arquivo de configuração **Grub Legacy**
 * **update-grub** ou **grub-mkconfig -o /boot/grub/grub.cfg:** gera o arquivo
 * **hd0,1:** primeira partição do primeiro disco
@@ -343,6 +348,8 @@
 
 * **Declaração de Variável Local:** NOME_VARIAVEL=valor
 * **Declaração de Variável Global:** export NOME_VARIAVEL=valor
+  * todos os processos filhos (iniciados a partir deste shell) têm acesso 
+
 * **set:** mostra todas as variáveis, globais e locais
 * **env:** mostra somente as variáveis globais
   * **env variavel=novovalor ./script.sh:** altera o valor da variável somente para a executação do script
@@ -366,6 +373,7 @@
   * **||:** executa o segundo comando somente se o primeiro der erro (**OU**)
 * **history:** lista o histórico de comandos executados pelo usuário atual
   * **history -c:** limpa o histórico
+  * **.bash_history:** arquivo armazenado na **/home** que armazena o histórico
 * **!!:** repete o último comando executado
 * **!n:** executa o comando de número **n** do history
 * **CTRL+R:** pesquisa por comandos no histórico
@@ -487,7 +495,7 @@
 
 * **mv:** move os arquivos
 
-  * mesmos parâmetros do **cp**, com exceção a **-r** e **-p**
+  * mesmos parâmetros do **cp**, com exceção a **-r** e **-p** (já copia os diretórios)
   * usado para renomear arquivos
 
 * **touch:** cria ou atualiza hora de acesso/modificação do arquivo que segue
@@ -525,7 +533,7 @@
   * **f:** cria o arquivo com o nome que segue
   * **z:** compacta com **gzip**
   * **j:** compacta com **bzip2**
-  * **J:** compacta com **xz**
+  * **x:** compacta com **xz**
 
 * **gzip:** compacta o arquivo que segue, substitui o arquivo original pelo compactado
 
@@ -547,7 +555,7 @@
 * **dd:** copia partições byte a byte
   * **if=:** origem
   * **of=:** destino
-    * se o destino for um diretório, copia o conteúdo
+    * se a origem for um diretório, copia o conteúdo
     * para criar imagem é só definir **.img** no destino
 
 ### 103.4 - Fluxos, pipes (canalização) e redirecionamentos de saída
@@ -577,6 +585,7 @@
      * **mv arquivo-temp arquivo**
 * **tee:** redireciona saída para arquivo e mostra na tela
   * **comando | tee arquivo**
+  * **comando | tee -a arquivo:** adiciona ao final do arquivo (**append**)
 * **xargs:** redireciona a saída de um comando para a entrada de outro
   * **find /home -name "arquivos" | xargs ls -l**
 * **\`comando\` (crase) ou $(comando):** executa um comando dentro de outro
@@ -632,6 +641,7 @@
   * **CTRL+A + D:** desacopla do screen
   * **CTRL+A + R:** acopla no screen
   * **exit:** fecha a aba
+* **nohup comando:** impede que o processo pare quando o usuário desloga 
 * **comando &:** executa o comando em background e libera o terminal
   * mostra o id do **job** e o **PID**
   * outra forma:
@@ -677,6 +687,7 @@
   * **-n x PID** ou **x PID**
   * **-n x -u usuario:** define para todos os processos do **usuario**
   * **-n x -g grupo:** define para todos os processos do **grupo**
+  * pode ser definido dentro do comando **top** digitando **r** e então o valor do nice
 
 ### 103.7 - Procurar em arquivos de texto usando expressões regulares
 
@@ -720,7 +731,7 @@
 
   * **"+":** 1 ou mais ocorrências do caractere anterior
 
-  * **"?":** 0 ou 1 ocorrência do caractere anterior
+  * **"?":** 0 ou 1 ocorrência do caractere anterior **~>** CARACTERE OPCIONAL
 
   * **".":** somente 1 ocorrência do caractere anterior
 
@@ -746,6 +757,7 @@
       * **a:** entra no modo edição no caractere seguinte
       * **A:** entra no modo edição no final da linha
     * **comandos:** uso do **:**
+      * **$:** posiciona o cursor no final do arquivo 
       * **w:** salva o arquivo
       * **w novonome:** para salvar o arquivo com **novonome**
       * **q:** fecha o arquivo (informa se há alterações não salvas)
@@ -753,27 +765,26 @@
       * **wq** ou **x:** salva e fecha
       * **ZZ:** tem o mesmo efeito (sem digitar **:**)
       * **!comandolinux:** executa o **comandolinux** e volta para o **vi** (após ENTER)
-      * **:!ls /tmp** por exemplo
+        * **:!ls /tmp** por exemplo
       * **e!:** atualiza o arquivo com as alterações feitas por outro usuário/processo após a abertura
   * **/:** pesquisa pela palavra que segue (de cima para baixo)
   * **n** vai para a próxima ocorrência, **N** volta para a anterior
   * **?:** pesquisa pela palavra que segue (de baixo para cima)
   * **dd:** recorta a linha
-  * **dnd:** recorta as próximas **n** linhas
+  * **dnd** ou **ndd:** recorta as próximas **n** linhas
   * **cc:** recorta a linha e entra no modo edição
   * **yy:** copia a linha
-  * **yny:** copia as próximas **n** linhas
+  * **yny** ou **nyy:** copia as próximas **n** linhas
   * **p:** cola a linha copiada/recortada
-
+  
 * **nano:** comandos na parte inferior da tela
-
   * **^:** CTRL e **M:** ALT 
   * **ALT + /:** final do arquivo
   * **ALT + \:** começo do arquivo
   * **CTRL + X:** fecha (pergunta se deseja salvar alterações)
   * **CTRL + o:** salva 
   * **CTRL + W:** pesquisa pela pavra que segue
-
+  
 * **emacs:** roda tanto em interface gráfica quanto no shell
 
   * **CTRL + x CTRL + s:** salva
@@ -801,7 +812,7 @@
   * **gdisk:** somente partições GPT
 
 * **fdisk -l:** lista os discos e partições
-  * campo **Disk label tepy: dos** indica partição MBR
+  * campo **Disk label type: dos** indica partição MBR
 * **fdisk /dev/sbd:** entra nas opções do disco **sdb**
   * **m:** mostra o menu
   * **n:** nova partição
@@ -824,7 +835,7 @@
   * **brtfs:** fs desenvolvido pela Oracle, nova geração
   * **vfat:** fs do windows 
   * **journal:** sistema de logs que registra alterações no sistema
-  * facilita a recuperação em caso de falha abrupta
+    * facilita a recuperação em caso de falha abrupta
 
 * **mkfs -t tipo partição:** cria o filesystem
   * **mkfs.tipo** também pode ser usado
@@ -902,7 +913,8 @@
 
 * **unmount:** desmonta temporariamente a partição/ponto de montagem que segue
   * **-a:** desmonta tudo que está no fstab que não está sendo usado no momento
-* **/etc/fstab:** arquivo de configuração com informações de montagem
+* **/etc/mtab:** arquivo que contém os filesystems atualmente montados
+* **/etc/fstab:** arquivo de configuração com informações de montagem **~>** usado pelo **kernel**
   * cada linha uma partição
   * <file system> pode ser o UUID, partição ou filesystem volume name
   * <mount point> diretório a ser montada a partição
@@ -1028,3 +1040,106 @@
   * **updatedb** atualiza manualmente
 * **whereis:** busca comandos, arquivos de sistema, libs e fontes de man
 * **which:** busca somente no PATH a primeira correspondência à busca
+
+# Exame 102
+
+## 105 - Shells e scripts do Shell
+
+### 105.1 - Personalizar e trabalhar no ambiente shell
+
+* **script:** executa o script em outro shell
+  * somente variáis globais
+
+* **source script** ou **. script:** executa o script no mesmo shell
+  * variáveis locais são consideradas
+
+* **function:** cria uma função
+  * **function funcao1 {comando1; comando2;...}**
+  * **funcao1 () {comandos...}** tem o mesmo efeito
+
+* **set:** mostra a definição das funções existentes
+
+* **/etc/profile:** arquivo de configuração aplicado a cada login
+
+  * vai executar também todos os scripts da pasta **/etc/profile.d/**
+
+* **/etc/bash.bashrc:** arquivo de configuração aplicado a cada novo bash
+
+  * um novo login também abre um novo bash
+
+* **/etc/inputrc:** configurações de terminal, atalhos, modos de escrita
+
+* **etc/skel/:** diretório contendo os arquivos que serão criados na home de cada novo usuário
+
+  * esqueleto da home
+
+* **/home:** arquivos de configuração local (de cada usuário)
+
+  * o sistema vai procurar as configurações nesses arquivos, nessa ordem
+    * **.bash_profile**, **.bash_login** e **.profile**
+  * **.bashrc:** para configurações de novos bashs para o mesmo usuário
+    * aliases são definidos nesse arquivo
+  * **inputrc:** configurações locais de terminal, atalhos, modos de escrita
+
+  * **.bash_logout:** script executado durante o processo de logout do usuário
+
+* **chsh:** muda o shell do usuário
+
+### 105.2 - Editar e escrever scripts simples
+
+
+
+## 106 - Interfaces de usuário e Desktops
+
+### 106.1 - Instalar e configurar o X11
+
+### 106.2 - Desktops gráficos
+
+### 106.3 - Acessibilidade
+
+## 107 - Tarefas administrativas
+
+### 107.1 - Administrar contas de usuário, grupos e arquivos de sistema relacionados
+
+### 107.2 - Automatizar e agendar tarefas administrativas de sistema
+
+### 107.3 - Localização e internacionalização
+
+
+
+## 108 - Serviços essenciais do sistema
+
+### 108.1 - Manutenção da data e hora do sistema
+
+### 108.2 - Log do sistema
+
+### 108.3 - Fundamentos de MTA (Mail Transfer Agent)
+
+### 108.4 - Configurar impressoras e impressão
+
+
+
+
+
+## 109 - Fundamentos de Rede
+
+### 109.1 - Fundamentos de protocolos de internet
+
+### 109.2 - Configuração persistente de rede
+
+### 109.3 - Soluções para problemas simples de rede
+
+### 109.4 - Configurar DNS cliente
+
+
+
+
+
+## 110 - Segurança
+
+### 110.1 - Tarefas administrativas de segurança
+
+### 110.2 - Segurança do host
+
+### 110.3 - Proteção de dados com criptografia
+
