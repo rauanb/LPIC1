@@ -1047,53 +1047,140 @@
 
 ### 105.1 - Personalizar e trabalhar no ambiente shell
 
-* **script:** executa o script em outro shell
+* **./script:** executa o script em outro shell
+  * precisa ter permissão de execução
   * somente variáis globais
-
 * **source script** ou **. script:** executa o script no mesmo shell
+  * não precisa ter permissão de execução
   * variáveis locais são consideradas
-
+* **exec ./script:** executa no mesmo shell e fecha a seção
+  * precisa ter permissão de execução
 * **function:** cria uma função
   * **function funcao1 {comando1; comando2;...}**
   * **funcao1 () {comandos...}** tem o mesmo efeito
-
 * **set:** mostra a definição das funções existentes
-
 * **/etc/profile:** arquivo de configuração aplicado a cada login
 
   * vai executar também todos os scripts da pasta **/etc/profile.d/**
-
+  * criar a função no final do arquivo para poder ser executada por todos os usuários
+  * um alias para todos os usuários pode ser criado aqui
 * **/etc/bash.bashrc:** arquivo de configuração aplicado a cada novo bash
 
   * um novo login também abre um novo bash
-
+  * um alias para todos os usuários pode ser criado aqui
 * **/etc/inputrc:** configurações de terminal, atalhos, modos de escrita
-
 * **etc/skel/:** diretório contendo os arquivos que serão criados na home de cada novo usuário
 
   * esqueleto da home
-
+  * chamar a função no final do arquivo **.profile** para ser executada no login de todos os usuários criados a partir deste momento
 * **/home:** arquivos de configuração local (de cada usuário)
 
   * o sistema vai procurar as configurações nesses arquivos, nessa ordem
     * **.bash_profile**, **.bash_login** e **.profile**
+    * chamar a função no final do arquivo para ser executada no login
   * **.bashrc:** para configurações de novos bashs para o mesmo usuário
     * aliases são definidos nesse arquivo
   * **inputrc:** configurações locais de terminal, atalhos, modos de escrita
-
   * **.bash_logout:** script executado durante o processo de logout do usuário
-
 * **chsh:** muda o shell do usuário
 
 ### 105.2 - Editar e escrever scripts simples
 
-
+* **script.sh:** normalmente salvos com .sh
+* adicionar no PATH
+  * **vi ~/.profile** adicionar na linha do PATH o caminho para os script
+  * será válido após o próximo login
+* **She-bang:** interpretador do script
+  * definido na primeira linha
+  * **#!/bin/bash**
+* **./script parâmetro1 parâmetro2:**
+  - **$0:** nome do script
+  - **$#:** número de parâmetros
+  - **$n:** enésimo parâmetro
+* comandos
+  * **VAR1=valor:** declaração de variável
+    * pode receber um comando **VAR1=\`date +%H\`** ou **VAR1=$(date +%H)**
+  * **read VAR1:** lê a entrada do usuário e armazena na variável VAR1 (não precisa declarar antes)
+  * **if condição; then execução fi:** estrutura condicional do if
+    * **[ -f /etc/bash.bashrc ]:** teste se existe o arquivo (atenção aos espaços entre os colchetes)
+      * **if test -f /etc/bash.bashrc** tem o mesmo resultado
+    * **[-d /etc/profile.d]:** teste se existe o diretório
+    * **-r** permissão de leitura **-w** permissão de escrita **-x** permissão de execução
+    * **-eq** = **ne** \!= **-gt** > **-lt** < **-ge** >= **-le** <=
+  * **case $VAR1 in caso1) execução ;; caso2|caso3) execução ;; *) execução esac**
+    * **\* ~>** else
+  * **seq n:** faz a sequência de 1 a n
+  * **expr expressão:** calcula a expressão
+  * **for i in lista do execução done**
+  * **while [ condição ] do execução done**
+  * **until [condição de parada] do execução done**
 
 ## 106 - Interfaces de usuário e Desktops
 
 ### 106.1 - Instalar e configurar o X11
 
+* servidor de interface gráfica
+* os aplicativos são clientes desse servidor
+* **etc/X11/xorg.conf:** principal arquivo de configuração
+  * seção **files** contêm os módulos e as fontes usadas pelo X
+  * seção **input device** contêm configurações de teclado e mouse
+  * se uma aplicação define configurações para o X11, ela usa o diretŕoio **/usr/share/X11/xorg.conf.d**
+* **/home/.xsession-errors:** arquivo de informações e logs referentes ao X11
+* para gerar o arquivo xorg.conf
+  * mudar para ambiente não gráfico **CTRL ALT F1...F6**
+  * matar xorg **pkill xorg**
+  * mudar de target **systemctl isolate mult-user.target**
+  * parar o dm **systemctl stop xfwdm**
+  * gerar o arquivo **Xorg -configure**
+
+* **$DISPALY:** variável que armazena o X usado
+  * **:0.0** indica monitor 0 local host
+  * exibir programa em um segundo computador:
+    * (primeiro computador) **export DISPLAY="ip_segundo_computador:0.0"**
+    * (segundo computador) **xhost +"ip_primeiro_computador"**
+    * (segundo computador) adicionar **xserver-allow-tcp=true** no arquivo xserver-command do diretório lightdm.conf.d
+    * **OU**
+    * (segundo computador) **xauth list** copiar 2º e 3º campo da última linha (novo a cada inicialização)
+    * (primeiro computador) **xauth add campos_copiados**
+* **Desktop Enviroment**
+  * Conjunto de aplicações
+  * Interface gráfica, Window Manager
+  * **Display Manager:** resposável pelo login
+
+* **Wayland:** surgiu para substituir do x11
+
 ### 106.2 - Desktops gráficos
+
+* **Gnome**
+
+  * segue o projeto **GNU**
+  * usa **GTK**
+
+* **KDE**
+
+  * usa **QT**
+  * multiplataforma (bsd, windows, macos)
+
+  #### Protocolos de Acesso Remoto
+
+* **XDMCP**
+  * nativo do x11
+  * sem segurança
+
+* **VNC**
+  * senhas criptografadas
+
+* **SPICE**
+  * mais seguro
+
+* **RDP**
+
+  * padrão do Windows
+  * acessível com Remmina no linux
+
+#### Reconhecimento de voz
+
+* CMUSphinx, Simon e Julius
 
 ### 106.3 - Acessibilidade
 
@@ -1101,7 +1188,125 @@
 
 ### 107.1 - Administrar contas de usuário, grupos e arquivos de sistema relacionados
 
+* **/etc/passwd:** principal arquivo que contém os usuários
+
+  * não é recomendado fazer alterações no arquivo **~>** comandos no terminal
+  * toda aplicalção tem um usuário
+  * cada linha um usuário
+  * **nome:senha:UID:GID:descrição:diretório_padrão:shell_padrão**
+  * **senha:** marcado com **x** indica que está salva e hasheada no arquivo **/etc/shadow**
+
+  * **Group ID:** 4º campo, ID do grupo padrão do usuário (poder estar em mais de um grupo)
+    * **UID = 0** e **GID=0:** usuário root 
+  * **diretório_padrão:** se for humano **~>** /home
+  * **shell_padrão:** se for humano **~>** /bin/bash (normalmente)
+    * usuário de aplicações não podem fazer login **~>** /bin/false
+* **/etc/shadow:** arquivo contendo as senhas hasheadas dos usuários
+* **/etc/group:**
+
+  * **nome:senha:GID:usuários_fora_o_padrão**
+  * os usuários que aparecerem aqui têm esse grupo como secundário
+* **/etc/gshadow:** arquivo contendo as senha hasheadas do grupos
+* **etc/login.defs:** arquivo contendo configurações de login
+
+  * **CREATE_HOME:** parâmetro para criar home ao criar um novo usuário
+* **useradd usuario:** cria o usuário, cria o grupo com o mesmo nome, porém não define senha
+  * sem senha o usuário não pode logar
+  * sinal de **!** no lugar da senha hasheada no /etc/shadow
+  * **useradd argumento usuário**
+  * **-c "descrição":** adiciona descrição ao usuário no passwd
+  * **-s caminho/bash:** define o bash padrão do usuário
+  * **-g grupo:** define o grupo padrão
+  * **-G grupos:** define os grupos adicionais
+  * **-m:** força a criação da home, mesmo que não tenha a instrução no login.defs
+  * **-M:** inibie a criação da home, mesmo que tenha a instrução no login.defs
+  * **-p senha_hasheada:** define a senha **somente** se estiver hasheada
+    * ver comando **passwd**
+
+  * **-u numero:** define o UID do usuário especificado
+* **usermod argumento usuario:** modifica um usuário existente
+  * mesmos argumentos do useradd
+  * **-G grupo:** define como **único** grupo secundário
+  * **-a -G grupo_secundário:** adiciona o grupo secundário
+* **userdel usuario:** apaga o usuário mas mantém a pasta **home**
+  * **userdel -r usuario:** apaga o usuário e a pasta **home**
+* **passwd usuario:** define a senha para o usuário existente
+  * somente **passwd** altera a senha do usuário atual
+  * usuário comum só pode trocar a própria senha
+* **su usuário:** troca de usuário no bash
+* **adduser:** script que cria o usuário, grupo e já pede para definir a senha
+  * não considerar para a prova
+* **groupadd grupo:** cria o grupo
+  * **grupo argumento grupo**
+  * **-g numero:** define o GID
+* **groupmod argumento grupo:** modifica o grupo
+  * **-n nome:** altera o nome
+  * **-g numero:** muda o GID
+* **newgrp grupo:** assume o grupo (se fizer parte ou ter a senha do grupo)
+  * arquivos criados/modificados passam a ser com esse grupo
+* **gpasswd grupo:** define senha para o grupo
+  * usuários com a senha podem assumir o grupo, mesmo que não façam parte dele
+* **id:** mostra o UID, GID e os grupos do usuário atual
+  * **id usuario:** mostra essas informações do usuário (não precisa ser root)
+* **groups:** mostra os grupos do usuário atual
+  * **groups usuario:** mostra os grupos do usuario especificado
+* **getent passwd usuario:** mostra a linha do passwd do usuario
+  * **getent group grupo:** mostra a linha do group do grupo
+* **chage argumento usuario:** somente root
+  * essas informações ficar no arquivo **shadow**
+  * **-l:** lista informações sobre o usuário, quando alterou senha, expiração de conta e senha
+  * **-M dias:** define como dias o prazo para expirar a senha
+    * senha expirada **~>** redefine a senha no login
+  * **-d data:** define a data da útlima alteração de senha
+    * **-d 0:** força o usuário a alterar a senha no próximo login
+  * **-E data:** define a data de expiração de conta
+    * conta expirada **~>** não loga
+  * **-E -1:** ativa novamente a conta com data de expiração **never**
+
 ### 107.2 - Automatizar e agendar tarefas administrativas de sistema
+
+#### Cron
+
+* é um deamon **~>** tem que estar rodando para fazer as verificações de tarefas
+
+* **/etc/crontab:** somente root
+
+* **/var/spool/cron/crontabs/:** diretório que ficam armazenados os crons dos usuários
+
+  * um arquivo para cada usuário que tenha crontab
+
+* agendamentos pré definidos na instalação
+
+  * há diretórios que são lidos e têm seus scripts executados **~>** run-parts
+  * diretórios **/etc/cron.daily**, **/etc/cron.weekly** e **/etc/cron.monthly**
+
+* **crontab -l:** lista os agendamentos do usuário atual
+
+  * se não tiver agendamentos informa que não há crontab para o usuário
+
+* **crontab -l -u usuario:** lista os agendamentos do usuário especificado (somente root)
+
+* **crontab -e:** entra no crontab em modo de edição
+
+* **crontab -r:** remove os registros do crontab
+
+* **crontab arquivo:** importa as configurações do arquivo
+
+* **minuto hora dia_mês mês dia_semana comando**
+
+  * **\*:** todo minuto/hora/dia...
+  * **n,m:** todo minuto/hora/dia n e todo minuto/hora/dia m
+  * **n-m:** no intervalo entre n e m minutos/horas/dias
+  * **\*/m:** a cada m minutos/horas/dias
+
+  * **segunda:** 1 **terça:** 2 **quarta:** 3 **quinta:** 4 **sexta:** 5 **sábado:** 6 **domingo:** 7 e 0
+
+* arquivos de permissão e proibição do cron
+
+  * não existem por padrão **~>** todos usuários podem usar o cron
+  * **/etc/cron.deny:** arquivo que proibe o uso do cron para os usuários listados
+  * **/etc/cron.allow:** arquivo que permite o uso do cron **SOMENTE PARA OS USUÁRIOS LISTADOS**
+    * com exceção ao root, que sempre vai poder usar
 
 ### 107.3 - Localização e internacionalização
 
