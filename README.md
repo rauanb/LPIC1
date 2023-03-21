@@ -1178,11 +1178,15 @@
   * padrão do Windows
   * acessível com Remmina no linux
 
+### 106.3 - Acessibilidade
+
+* **Stick keys:** conjunto de teclas podem ser apertadas uma de cada vez
+* **Slow keys:** teclas precisam ser pressionadas por um tempo para serem reconhecidas
+* **Bounce keys:** delay na repetição das teclas
+
 #### Reconhecimento de voz
 
 * CMUSphinx, Simon e Julius
-
-### 106.3 - Acessibilidade
 
 ## 107 - Tarefas administrativas
 
@@ -1267,6 +1271,8 @@
 
 #### Cron
 
+* agendamente de atividades recorrentes
+
 * é um deamon **~>** tem que estar rodando para fazer as verificações de tarefas
 
 * **/etc/crontab:** somente root
@@ -1303,26 +1309,180 @@
 
 * arquivos de permissão e proibição do cron
 
-  * não existem por padrão **~>** todos usuários podem usar o cron
+  * não existem por padrão **~>** todos usuários podem usar o cron **DEBIAN**
+    * para **RED HAT**, se não existirem, somente o root pode usar o cron
   * **/etc/cron.deny:** arquivo que proibe o uso do cron para os usuários listados
   * **/etc/cron.allow:** arquivo que permite o uso do cron **SOMENTE PARA OS USUÁRIOS LISTADOS**
     * com exceção ao root, que sempre vai poder usar
 
+#### AT
+
+* agendamente de uma atividade uma única vez
+* **at now +xhour**, **at hora** ou **at hora diamêsano**
+  * entra no prompt do at
+  * digite os comandos em cada linha
+  * **CTRL + D** para terminar **~>** aparece como **\<EOT>**
+* **atq** ou **at -l:** lista os jobs agendados e o seu ID
+* **atrm ID** ou **at -d ID:** remove o agendamento
+* se não existirem **/etc/at.allow** e **/etc/at.deny**, somente o root pode usar
+  * normalmente é criado o **at.deny** automaticamente
+
+#### Systemd Timer
+
+* agendamento de atividades recorrentes
+* **systemctl list-timers:** mostra os agendamentos
+* **unit:** arquivo .timer
+  * onde está definido o agendamento
+* **activates:** arquivo .service
+  * onde estão os comandos
+* **man systemd.time:** manual (time mesmo, não timer)
+* **OnBootSec:** seção para definir agendamento em relação ao boot do sistema
+
+#### Systemd Run
+
+* agendamento de uma atividade uma única vez
+* **systemd-run --on-active=xs comando**
+* a unidade é listada no **systemctl list-timers**
+
 ### 107.3 - Localização e internacionalização
 
+* linux trabalha com **UTC**
+* **/etc/localtime:** atalho para o arquivo de timezone definido na instalação
+  * pode-se alterar o destino do link para alterar o timezone
 
+* **/usr/share/zoneinfo/:** diretório contendo os diferentes fuso horários que podem ser definidos
+* **tzselect:** menu para mostrar os timezone
+  * **export TZ=timerzone_desejado:** altera o timezone para o usuário atual
+
+* **locale:** exibe informações de idioma e formatos
+  * **-a:** mostra os disponíveis
+  * **LC_ALL:** variável que sobrescreve todas as outras na definição do formato
+
+* **iconv -f ISO-8859-1 -t UTF-8 arquivo_win:** converte (somente mostrando na tela) o arquivo_win (gerado no windows, com padrão ISO) para UTF-8
 
 ## 108 - Serviços essenciais do sistema
 
 ### 108.1 - Manutenção da data e hora do sistema
 
+* **hwclock:** horário do hardware
+  * **hwclock -w** ou **hwclock --systohc:** ajusta o horário do hardware para ficar igual ao do sistema
+  * **hwclock -s** ou **hwclock --hctosys:** ajusta o horário do sistema para ficar igual ao do hardware
+  * **hwclock --set --date "mes/dia/ano hora:min":** define a data/hora do hardware
+* **date:** data, horário e timezone do sistema
+  * **date -u:** hora em UTC
+  * **date +%Y:** Ano com 4 dígitos
+  * **date +%y:** Ano com 2 dígitos
+  * **date +%H:%M:** hora:minutos
+  * **date mesdiahoraminutoano:** define a data/hora atual
+* **ntp:** Network Time Protocol
+  * o computador pode ser cliente de um servidor online e servidor de computadores locais ao mesmo tempo
+  * **ntpd:** é o deamon (programa em background) que atualiza o horário constantemente
+  * UDP porta 123
+  * **/etc/ntp.conf:** principal arquivo que configuração
+    * **pool** ou **server:** servidores consultados para a sincronização
+  * **nptq -p:** mostra os servidores e estatísticas
+* **ntpdate ip_servidor:** atualiza uma única vez usando o servidor especificado
+  * **ntpdate -q ip_servidor:** verifica se o servidor está ok para ser utilizado
+* **chrony:** outra implementação do ntp
+  * **chronyd:** deamon 
+  * **/etc/chrony.conf** ou **/etc/chrony/chrony.conf:** arquivo de configuração
+  * **chronyc tracking:** mostra informações gerais
+  * **chronyc sources:** lista os servidores
+
 ### 108.2 - Log do sistema
+
+* **rsyslog:** principal programa de logs, evolução do **syslog**
+  * **/etc/rsyslog.conf:** arquivo de configuração
+  * **/etc/rsyslog.d/:** diretório contendo arquivos de configuração que programas podem definir
+    * no arquivo default:
+      * **facility.priority destino:** gerador (programa), prioridade (erro, aviso, info) e arquivo.log
+      * ao definir a prioridade, vai logar tudo a partir dela
+        * warning **~>** warning, error, crit, alert e emerg
+        * crit **~>** crit, alert e emerg
+        * debug **~>** todos os tipos
+      * **facility.=priority:** somente a prioridade especificada
+* **logger -p facility.priority -t [TAG] "teste de log":** gera um log no destino definido com a TAG definida
+* **logrotate:** apagar logs antigos
+  * não tem deamon **~>** deve ser executado pelo cron
+  * **/etc/logrotate.conf:** arquivo de configuração
+    * weekly, daily
+    * **rotate X:** mantém x arquivos
+  * **/etc/logrotate.d:** diretório contendo arquivos de configuração
+    * **inetutils-syslogd:** principal arquivo
+      * ` /var/log/arquivo.log {` 
+      * `rotate 7` logs a manter
+      * `daily` frequência de registro
+      * `compress` compactar
+      * `delaycompress` não compactar o penúltimo
+      * `}` 
+* **systemd-journal:** registrador de logs
+  * trabalha em paralelo ao rsyslog e integrado (socket)
+  * **etc/systemd/journald.conf:** principal arquivo de configuração
+  * **journalctl:** mostra os logs
+  * **journalctl -b:** logs relacionados ao boot
+  * **journalctl --since "data":** desde a data
+  * **journalctl --since "data_inicial" -until "data_final":** intervalo
+  * **journalctl --disk-usage:** mostra o espaço utilizado pelos logs do journal (ativos e arquivados)
+  * **journalctl --vacuum-size=xM:** limpa x MB dos logs ARQUIVADOS (os ativos permanecem)
+  * **journalctl --verify:** verifica logs corrompidos
+  * **journalctl --sync:** grava em disco o que está em memória
+  * **systemd-cat comando:** faz a saída do comando ir para o journal (semelhante ao logger)
 
 ### 108.3 - Fundamentos de MTA (Mail Transfer Agent)
 
+* protocolo SMTP **~>** porta 25
+* sendmail, postfix e exim
+* **Open Relay:** configuração que permite qualquer usuário da internet enviar emails (normalmente spam e phishing)
+* **mail:** entra no comando e mostra a caixa de entrada do usuário
+  * **/var/spool/mail/usuário** ou **/var/mail/usuário:** diretório padrão dos emails
+  * digitar o número do email para visualizar
+  * **q:** sai e informa que as msgs visualizadas foram para **/home/usuário/mbox**
+* **mail -s "Assunto" destino:** sintaxe para enviar email (local ou internet)
+  * pede quem vai em cópia e em seguida o corpo do email
+  * **CTRL+D** para finalizar
+* **echo "corpo do email" | mail -s "Assunto" destino** tem o mesmo efeito
+* **mail -s "Assunto" destino < arquivo_corpo_email:** tem o mesmo efeito
+* **/etc/aliases:** arquivo que contém os aliases de email
+  * **alias:	email**
+  * após alterar precisa dar o comando **newaliases**
+* **/home/usuário/.forward:** arquivo que pode ser criado por qualquer usuário para redirecionar emails
+  * arquivo de texto contendo somente os destinos, um por linha
+* **mailq:** mostra a fila de emails
+  * **sendmail -bp** tem o mesmo efeito
+* **sendmail -q:** tenta reenviar os emails da fila
+  * **postqueue -f** tem o mesmo efeito
+
 ### 108.4 - Configurar impressoras e impressão
 
+#### CUPS - Common Unix Printing System
 
+* **cupsd:** deamon que precisa estar em execução
+* configurações via web **~>** 127.0.0.1:631
+  * cada impressora aparece como uma **QUEUE**
+  * **/etc/cups/printers.conf:** arquivo de configuração
+* **lpinfo -v:** mostra as impressoras disponíveis
+* **lpinfo -m:** mostra os drivers de impressoras
+* **lpstat -t:** mostra informações gerais do cups (deamon, impressora padrão e status das impressoras)
+* **lpstat -a:** mostra o status das impressoras
+* **lpq:** mostra a fila da impressora padrão
+  * **lpq -P nome_impressora:** mostra a fila da impressora especificada
+  * **/var/spool/cups:** diretório dos arquivos
+    * começando com **c:** impressos
+    * começando com **d:** fila
+* **lpadmin -p Nome_Impressora -E -v "device_impressora" -m driver_impressora**
+  * instalação de impressora
+  * **-E:** ativa (enable)
+  * **-v:** indica o device (lpinfo -v)
+  * **-m:** indica o driver (lpinfo -m | grep "modelo_impressora")
+* **lpoptions -p nome_impressora:** mostra as propriedades da impressora
+* **lpoptions -d nome_impressora:** define a impressora como padrão
+* **lpr arquivo:** imprime o arquivo na impressora padrão
+* **lpr arquivo -P nome_impressora:** imprime o arquivo na impressora definida
+* **cat arquivo | lpr** tem o mesmo efeito
+  * **echo "corpo do documento" | lpr** tem o mesmo efeito
+* **lprm -:** limpa toda a fila de impressão
+  * **lprm -P nome_impressora:** limpa a fila da impressora especificada
+* **/var/log/cups:** diretório dos logs do cups
 
 
 
@@ -1330,15 +1490,196 @@
 
 ### 109.1 - Fundamentos de protocolos de internet
 
+#### IPv4
+
+* 32 bits
+
+* **Classe A:** primeiro octeto de 1 a 126 **~>** 1.0.0.0 até 126.255.255.255
+  * IPs privados de 10.0.0.0 até 10.255.255.255
+* **Classe B:** primeiro octeto de 128 a 191 **~>** 128.0.0.0 até 191.255.255.255
+  * IPs privados de 172.16.0.0 até 172.31.255.255
+* **Classe C:** primeiro octeto de 192 a 223 **~>** 192.0.0.0 até 223.255.255.255
+  * IPs privados de 192.168.0.0 até 192.168.255.255
+
+#### Máscara
+
+* mesmo formato do IP
+* indica que parte do ip representa a rede e que parte representa o disponitivo
+* **CIDR:** indica a rede (/8, /16, /24 ou /32)
+  * **255.0.0.0:** primeiro octeto é a rede **~>** /8
+  * **255.255.0.0:** primeiro e segundo octetos são a rede **~>** /16
+  * **255.255.255.0:** primeiro, segundo e terceiro octetos são a rede **~>** /24
+  * **255.255.255.255:** um único host **~>** /32
+* o primeiro ip é sempre o ip da rede
+* o último ip é sempre o de broadcast
+* dividir a rede em 2 **~>** ocupar mais um campo com a rede com metade do range
+  * 255.255.255.0 pode ter 254 hosts (/24)
+  * 255.255.255.128 pode ter 126 hosts (/25)
+
+#### Protocolos
+
+* **gateway padrão:** faz a conexão entre duas redes/subredes
+* **IPv6:** 128 bits
+  * 8 grupos de 4 caracteres hexadecimais
+  * 4 0 seguidos podem ser abreviados para ::
+  * **unicast:** endereço que identifica uma única interface
+  * **multicast:** endereço que identifica um conjunto de interfaces e envia o pacote para cada uma
+  * **anycast:** endereço que identifica um contjunto de interfaces e envia o pacote para somente uma (normalmente a mais próxima)
+* **TCP:** Transmission Control Protocol
+  * orientado a conexões **~>** mais confiável
+  * garante a entrega dos pacotes e na ordem certa
+  * reenvia o pacote em caso de erro
+  * utlizado por **FTP**, **SMTP**, **HTTP** entre outros
+* **UDP:** User Datagram Protocol
+  * não orientado a conexões
+  * não garante a entrega dos pacotes
+  * melhor performance
+  * utilizado por **DNS**, **NFS** e **NTP**
+* **ICMP:** Internet Control Message Protocol
+  * transmitir informações de controle
+  * controle de tráfego
+  * detecção de destinos não atingíveis
+  * redirecionamento de rotas
+  * verificação de hosts remotos
+  * utilizado pelo **ping** e **traceroute**
+
+#### Portas e Serviços
+
+* cada serviço roda em uma porta de 16 bits **~>** máximo de 65535 portas em um dispositivo
+* **portas reservadas:** até 1024
+  * **20** e **21:** FTP
+  * **22:** SSH
+  * **23:** Telnet
+  * **25** e **465:** SMTP e SMTPS
+  * **53:** DNS
+  * **67** e **68:** DHCP
+  * **80** e **443:** HTTP e HTTPS
+  * lista em **/etc/services**
+* IPv4:porta ou [IPv6]:porta
+
 ### 109.2 - Configuração persistente de rede
+
+* **/etc/hostname:** nome da máquina
+  * **hostnamectl set-hostname novo_nome:** altera o nome da máquina
+* **/etc/hosts:** arquivo de hosts
+* **/etc/nsswitch.conf**
+  * **hosts: files dns:** procura primeiro nos arquivos internos e depois em um dns
+* **/etc/networks:** semelhante ao hosts, mas para redes
+* **/etc/resolv.conf:** determina o servidor DNS usado
+  * dinamicamente alterado pelo systemd
+* **systemctl status NetworkManager:** mostra o serviço de gerenciamento automático de redes
+* **/etc/NetworkManager/:** diretório contendo arquivos de rede
+* **nmcli:** mostra as interfaces
+  * **nmcli device** ou **nmcli d:** resumo das interfaces
+    * começando com **e** é cabo, com **w** é wireless
+  * **nmcli radio:** mostra se o wifi está habilitado
+  * **nmcli network:** mostra se a placa de rede a cabo está habilitada
+  * **nmcli connection** ou **nmcli con:** mostra as conexões
+  * **nmcli con down "nome_conexão":** encerra a conexão (up reconecta)
+  * **nmcli con add type ethernet con-name nome_rede ifname dispositivo ip4 ip_fixo/CIDR gw4 ip_gateway:** cria uma nova conexão ethernet com ip fixo
+  * **nmcli device wifi list:** lista os wifi disponíveis com nome, signal, segurança
+  * **nmcli device wifi list:** escaneia os wifis disponíveis
+  * **nmcli device wifi connect SSID_wifi password senha_wifi:** conecta no wifi
+* **HAL:** Hardware Abstraction Layer
+* **ifup:** sobre uma interface
+  * baseado no arquivo **/etc/network/interfaces**
+* **systemctl status systemd-networkd:** mostra o serviço de configuração de rede do systemd
+  * desabilitado por padrão pois é usado o NetworkManager
 
 ### 109.3 - Soluções para problemas simples de rede
 
+#### IP
+
+* **ip link show:** mostra as interfaces em uso
+* **ip address show** ou **ip addr show:** mostra as interfaces e os ips
+* **ip route show:** mostra as rotas
+  * default é o roteador
+* **ip addr add ip_fixo/CIDR dev placa_rede:** adiciona o ip à placa (somente na seção atual)
+  * **del** no lugar de **add** retira o ip da placa (somente na seção atual)
+* **ip addr flush dev placa_rede:** retira todos os ips da placa (somente na seção atual)
+* **ip link set placa_rede down:** desconecta a placa
+  * **up** no lugar de **down** reconecta
+* **ip route del nome_rota:** apaga a rota
+  * **ip route del default:** apaga a rota para o roteador
+* **ip route add rede/CIDR via ip:** adiciona a rota para todo pacote enviado a rede passar pelo dispositivo com o ip especificado
+  * **ip route add default via ip_roteador:** adiciona novamente a rota para o roteador/internet
+
+#### IFCONFIG
+
+* **ifconfig:** mostra as interfaces ativas e os ips (semelhante ao ip)
+  * faz parte do pacote net-tools
+  * **RX:** recebimento de pacotes e erros no recebimento
+  * **TX:** envio de pacotes e erros no envio
+* **ifconfig dispositivo down:** desativa a interface
+  * **up** no lugar de **down** ativa a interface
+
+* **ifconfig -a:** mostra todas as interfaces
+* **ifconfig dispositivo ip/CIDR:** define o ip fixo para o dispositivo
+* **ifconfig dispositivo:x ip/CIDR:** define outros ips (0, 1, 2... no lugar de **x**)
+
+#### ROUTE
+
+* **route:** mostra as rotas (semelhante ao ip route)
+  * faz parte do pacote net-tools
+* **route -n:** não resolve os nomes (definidos em /etc/hosts e /etc/networks)
+* **route del rota:** apaga a rota
+  * **route del default:** apaga a rota para o roteador/internet
+* **route add -net rede/CIDR gw ip:** adiciona rota
+  * **route add default gw ip_roteador:** adiciona a rota para o roteador/internet
+
+#### Solução de problemas
+
+* **hostname -d:** mostra o domínio (definido no hosts)
+* **hostname -f:** mostra o **fqdn** (nome completo de domíno)
+* **ping ip_destino:** envia um ECHO_REQUEST e recebe um ECHO_REPLY
+  * **ping -cx  -iy ip_destino:** envia **x** pacotes a cada **y** segundos e para
+  * alguns hosts não respondem o icmp
+  * **ping -4 ip_destino:** para especificar IPv4
+    * **-6** no lugar do **-4** para especificar IPv6
+
+* **traceroute destino:** mostra a rota até o destino
+  * usa UDP
+  * **traceroute -I destino:** usa ICMP
+  * **traceroute6 destino:** para especificar IPv6
+
+* **tracepath destino:** mais simples que o traceroute
+  * não exige privilégios de admin em nenhuma função
+
+* **ss:** mostra todas as conexões da máquina (sockets)
+* **ss -tu:** mostra as conexões TCP e UDP estabelecidas
+  * ESTAB
+
+* **ss -tua:** mostra todas as conexões TCP e UDP
+  * ESTAB, LISTEN e UNCONN
+
+* **ss -tuan:** não resolve os nomes (mostra as portas)
+* **ss -tuanp:** mostra o PID dos processos responsáveis por cada conexão
+* **netstat:** funciona da mesma forma que o ss
+  * faz parte do pacote net-tools
+
+* **netcat destino porta:** testa a conexão
+  * **nc destino porta:** tem o mesmo efeito
+  * semelhante ao **telnet**
+
+* **nc -l -p numero_porta:** coloca a porta especificada em modo LISTEN
+* **nc -vz destino porta:** testa a conexão e mostra succeeded ou connection refused
+
 ### 109.4 - Configurar DNS cliente
 
-
-
-
+* **/etc/hosts:** referências de ip, nomes e e domínios 
+* **/etc/nsswitch.conf:** define a ordem da busca pelo dns (padrão files e depois dns)
+* **/etc/resolv.conf:** indica o servidor DNS consultado
+  * nameserver 8.8.8.8 (exemplo)
+* **host nome_destino:** resolve o nome e mostra os ips
+  * **host -t mx nome_destino:** resolve o registro de emails do destino
+  * **host ip_destino:** mostra o nome **~>** DNS reverso
+* **dig nome_destino:** mais completo que o host
+  * faz a consulta no systemd-resolv
+  * **dig nome_destino +short:** mostra somente o ip resolvido
+  * **dig nome_destino @ip_DNS:** resolve o nome usando o servidor DNS especificado
+  * **dig -x ip_destino:** DNS reverso
+  * **dig -x ip_destino +short:** mostra somente o nome resolvido
+* **getent:** consulta as bases do nsswitch
 
 ## 110 - Segurança
 
