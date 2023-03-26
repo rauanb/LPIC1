@@ -1195,7 +1195,7 @@
 * **/etc/passwd:** principal arquivo que contém os usuários
 
   * não é recomendado fazer alterações no arquivo **~>** comandos no terminal
-  * toda aplicalção tem um usuário
+  * toda aplicação tem um usuário
   * cada linha um usuário
   * **nome:senha:UID:GID:descrição:diretório_padrão:shell_padrão**
   * **senha:** marcado com **x** indica que está salva e hasheada no arquivo **/etc/shadow**
@@ -1257,7 +1257,7 @@
 * **getent passwd usuario:** mostra a linha do passwd do usuario
   * **getent group grupo:** mostra a linha do group do grupo
 * **chage argumento usuario:** somente root
-  * essas informações ficar no arquivo **shadow**
+  * essas informações ficam no arquivo **shadow**
   * **-l:** lista informações sobre o usuário, quando alterou senha, expiração de conta e senha
   * **-M dias:** define como dias o prazo para expirar a senha
     * senha expirada **~>** redefine a senha no login
@@ -1685,7 +1685,113 @@
 
 ### 110.1 - Tarefas administrativas de segurança
 
+* **su:** loga na conta do root
+* **su usuário:** loga na conta do usuário sem carregar os arquivos .profile e /etc/profile
+* **su - usuário:** faz um login completo (carrega os arquivos)
+* **sudo su -:** permite que o usuário (com permissão de admin) logue como root
+  * a permissão é dada no **/etc/sudoers** para o grupo
+* **/etc/sudoers:** as permissões são dadas por grupo
+  * **%:** indica grupo
+  * **usuário ALL=comando:** permissão para o usuário executar o comando de qualquer terminal
+  * pode ser editado com o comando **visudo** também
+* **/etc/group:** arquivo contendo a relação entre grupos e usuários
+  * usuário admin está no grupo sudo
+* **who:** mostra que está logado e em que terminal
+  * **tty:** login em terminais sem interface gráfica (CTRL+ALT Fx)
+  * **pts:** login em terminais de interface gráfica
+* **who -a:** mostra com mais detalhes
+  * **LOGIN:** indica terminais que não estão em uso
+* **w:** mostra os usuários logados com mais detalhes
+  * uso de cpu
+  * comando usado no momento
+* **last:** histórico de login dos usuários com tempo de uso
+  * usa o arquivo **/var/log/wtmp**
+  * **last usuário:** mostra o histórico do usuário especificado
+* **lastb:** histórico de tentativas falhas de login
+  * usa o arquivo **/var/log/btmp**
+* **lastlog:** mostra o último login de todos os usuários do passwd
+  * usuários de sistema não fazem login
+* **VER COMANDO CHAGE 107.1:** semelhante ao passwd
+* **passwd -S usuário:** mostra o status do usuário
+  * **P:** indica que há uma senha definida
+  * **NP:** sem senha definida
+  * **L:** conta bloqueada
+* **passwd -xY usuário:** define que a senha vai expirar em **Y** dias
+* **passwd -nY usuário:** define como **Y** dias no mínimo para o usuário permanecer com a mesma senha
+* **passwd -wY usuário:** avisa o usuário faltando **Y** dias para a senha expirar
+* **passwd -iY usuário:** define para **Y** dias o bloqueio da conta após a expiração da senha
+* **passwd -l usuário:** bloqueia a conta
+  * usuário fica com **!** no início da senha no **/etc/shadow**
+  * **-u:** desbloqueia
+* **usermod -L usuário:** bloqueia a conta
+  * **-U:** desbloqueia
+* **find / -perm -4000 -ls:** lista os comandos que tem permissão SUID
+* **find / -perm -2000 -ls:** lsita os comandos que tem permissão SGID
+* **find / -nouser -ls:** lsita os comandos que não têm usuário associado (usuários apagados)
+* **ulimit:** limite de recursos por usuário
+  * válido somente na seção **~>** utilizar o arquivo **/etc/security/limits.conf** para ser permanente
+  * **ulimit -a:** mostra todos os limites atuais da seção
+  * **S:** soft é o limite atual **H:** hard é o limite máximo
+* **netstat -anpt:** mostra as portas abertas
+* **lsof -i:** mesmo resultado
+  * **lsof -i :porta:** lista somente as conexões na porta especificada (exemplo 443)
+  * **lsof -i :serviço:** lista somente as conexões do serviço especificado (exemplo https)
+* **nmap destino:** escaneia as portas ativas
+  * destino pode ser o localhost
+  * **namp -O destino:** mostra detalhes do Sistema Operacional
+  * **nmap -sT destino:** escaneia somente portas TCP
+  * **nmap -sU destino:** escaneia somente portas UDP
+* **fuser porta/protocolo:** mostra o processo que está usando a porta no protocolo especificado
+  * **fuser -u porta/protocolo:** mostra o usuário dono do processo
+
 ### 110.2 - Segurança do host
+
+* **pwconvert:** converte o arquivo **/etc/passwd** para colocar as senhas no **/etc/shadow** (para sistemas antigos)
+* **/etc/nologin:** se esse arquivo existir (e não for vazio), somente o root consegue logar na máquina
+* **inetd:** serviço de ftp e telnet
+  * **/etc/inetd.conf:** arquivo de configuração
+  * **TPC Wrapper:** verifica os arquivos **/etc/hosts.allow** e **/etc/hosts.deny** **~>** intermediador de conexões
+* **xinetd:** mesmas funções
+  * **/etc/xinetd.d/:** diretório contendo arquivos de configuração
+
+* **systemd.socket:** comuicação entre processos ou entre computadores
+  * **systemctl list-units --type=sockets:** mostra os sockets ativos
+  * **/lib/systemd/system:** diretório que contém os arquvios **.socket**
+  * para cada socket existe um serviço **serviço@.socket**
+
 
 ### 110.3 - Proteção de dados com criptografia
 
+* **Objetivos:** autenticidade, confidencialidade, integridade e irretratabilidade
+* **telnet** não tem criptografia
+
+#### SSH
+
+* cliente (quem conecta) e servidor
+
+* **chaves assimétricas:** pública e privada
+  * **pública:** usada para criptografar
+  * **privada:** única chave capaz de descriptografar
+* **/etc/ssh/ssh_config:** arquivo de configuração do cliente ssh
+  * normalmente já instalado por padrão
+* **/etc/ssh/sshd_config:** arquivo de configuração do servidor ssh
+  * normalmente precisa ser instalado **apt install openssh-server**
+* **ssh usuario@servidor** ou **ssh -l usuario servidor:** estabelece a conexão autenticada por senha
+  * **ssh servidor:** estabelece a conexão usando o usuário atual do cliente
+* **/home/.ssh/known_hosts:** arquivo contendo as chaves públicas dos servidores já conectados
+* **/home/.ssh/authorized_keys:** arquivo que contém a chave pública do usuário (permissão 600)
+  * usado para autenticação por chave, sem senha
+  * **ssh-keygen -t tipo -b tamanho:** gera o par de chaves
+    * **tipos:** rsa (mais usado), dsa, ecdsa e ed25519
+* **tunel ssh:** criptografa a conexão para uma aplicação (como vnc)
+* **ssh -X usuario@servidor "aplicação":** roda a aplicação no servidor mas mostra no cliente
+* **ssh usuario@servidor "comando1; comando2":** executa os comandos e retorna para sua seção local
+* **scp arquivo usuario@servidor:destino:** envia o arquivo local para o destino no servidor
+* **scp usuario@servidor:arquivo destino:** recebe o arquivo do servidor
+
+#### GPG
+
+* assinar e criptografar dados
+* **gpg --gen-key:** cria as chaves
+* **gpg --list-keys: **lista as chaves
+* a chave pública pode ser enviada para um servidor, de onde será importada pelo outro usuário
