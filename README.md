@@ -1109,7 +1109,8 @@
     * **-eq** = **ne** \!= **-gt** > **-lt** < **-ge** >= **-le** <=
   * **case $VAR1 in caso1) execução ;; caso2|caso3) execução ;; *) execução esac**
     * **\* ~>** else
-  * **seq n:** faz a sequência de 1 a n
+  * **seq n:** faz a sequência de 1 a n, um em cada linha
+    * **seq n s m:** sequência de **n** a **m** com passo **s**
   * **expr expressão:** calcula a expressão
   * **for i in lista do execução done**
   * **while [ condição ] do execução done**
@@ -1206,11 +1207,13 @@
   * **shell_padrão:** se for humano **~>** /bin/bash (normalmente)
     * usuário de aplicações não podem fazer login **~>** /bin/false
 * **/etc/shadow:** arquivo contendo as senhas hasheadas dos usuários
+  * SOMENTE **ROOT** PODE ACESSAR
+
 * **/etc/group:**
 
   * **nome:senha:GID:usuários_fora_o_padrão**
   * os usuários que aparecerem aqui têm esse grupo como secundário
-* **/etc/gshadow:** arquivo contendo as senha hasheadas do grupos
+* **/etc/gshadow:** arquivo contendo as senhas hasheadas do grupos
 * **etc/login.defs:** arquivo contendo configurações de login
 
   * **CREATE_HOME:** parâmetro para criar home ao criar um novo usuário
@@ -1241,7 +1244,7 @@
 * **adduser:** script que cria o usuário, grupo e já pede para definir a senha
   * não considerar para a prova
 * **groupadd grupo:** cria o grupo
-  * **grupo argumento grupo**
+  * **groupadd argumento grupo**
   * **-g numero:** define o GID
 * **groupmod argumento grupo:** modifica o grupo
   * **-n nome:** altera o nome
@@ -1255,13 +1258,13 @@
 * **groups:** mostra os grupos do usuário atual
   * **groups usuario:** mostra os grupos do usuario especificado
 * **getent passwd usuario:** mostra a linha do passwd do usuario
-  * **getent group grupo:** mostra a linha do group do grupo
+  * **getent group grupo:** mostra a linha do grupo
 * **chage argumento usuario:** somente root
   * essas informações ficam no arquivo **shadow**
   * **-l:** lista informações sobre o usuário, quando alterou senha, expiração de conta e senha
   * **-M dias:** define como dias o prazo para expirar a senha
     * senha expirada **~>** redefine a senha no login
-  * **-d data:** define a data da útlima alteração de senha
+  * **-d data:** define a data da próxima alteração de senha
     * **-d 0:** força o usuário a alterar a senha no próximo login
   * **-E data:** define a data de expiração de conta
     * conta expirada **~>** não loga
@@ -1271,7 +1274,7 @@
 
 #### Cron
 
-* agendamente de atividades recorrentes
+* agendamento de atividades recorrentes
 
 * é um deamon **~>** tem que estar rodando para fazer as verificações de tarefas
 
@@ -1356,8 +1359,9 @@
 
 * **locale:** exibe informações de idioma e formatos
   * **-a:** mostra os disponíveis
+  * **LC_TIME:** variável que define a formatação da data e hora
   * **LC_ALL:** variável que sobrescreve todas as outras na definição do formato
-
+  
 * **iconv -f ISO-8859-1 -t UTF-8 arquivo_win:** converte (somente mostrando na tela) o arquivo_win (gerado no windows, com padrão ISO) para UTF-8
 
 ## 108 - Serviços essenciais do sistema
@@ -1418,6 +1422,7 @@
 * **systemd-journal:** registrador de logs
   * trabalha em paralelo ao rsyslog e integrado (socket)
   * **etc/systemd/journald.conf:** principal arquivo de configuração
+    * **SystemMaxUse:** parâmetro que define o máximo espaço utilizado
   * **journalctl:** mostra os logs
   * **journalctl -b:** logs relacionados ao boot
   * **journalctl --since "data":** desde a data
@@ -1563,7 +1568,7 @@
   * **hostnamectl set-hostname novo_nome:** altera o nome da máquina
 * **/etc/hosts:** arquivo de hosts
 * **/etc/nsswitch.conf**
-  * **hosts: files dns:** procura primeiro nos arquivos internos e depois em um dns
+  * **hosts: files dns:** procura primeiro nos arquivos internos (**hosts primeiro**) e depois em um dns
 * **/etc/networks:** semelhante ao hosts, mas para redes
 * **/etc/resolv.conf:** determina o servidor DNS usado
   * dinamicamente alterado pelo systemd
@@ -1578,10 +1583,10 @@
   * **nmcli con down "nome_conexão":** encerra a conexão (up reconecta)
   * **nmcli con add type ethernet con-name nome_rede ifname dispositivo ip4 ip_fixo/CIDR gw4 ip_gateway:** cria uma nova conexão ethernet com ip fixo
   * **nmcli device wifi list:** lista os wifi disponíveis com nome, signal, segurança
-  * **nmcli device wifi list:** escaneia os wifis disponíveis
+  * **nmcli device wifi scan:** escaneia os wifis disponíveis
   * **nmcli device wifi connect SSID_wifi password senha_wifi:** conecta no wifi
 * **HAL:** Hardware Abstraction Layer
-* **ifup:** sobre uma interface
+* **ifup:** sobe uma interface
   * baseado no arquivo **/etc/network/interfaces**
 * **systemctl status systemd-networkd:** mostra o serviço de configuração de rede do systemd
   * desabilitado por padrão pois é usado o NetworkManager
@@ -1671,8 +1676,10 @@
 * **/etc/resolv.conf:** indica o servidor DNS consultado
   * nameserver 8.8.8.8 (exemplo)
 * **host nome_destino:** resolve o nome e mostra os ips
+  * **host destino servidor_DNS:** resolve o nome usando o servidor DNS especificado
   * **host -t mx nome_destino:** resolve o registro de emails do destino
   * **host ip_destino:** mostra o nome **~>** DNS reverso
+  
 * **dig nome_destino:** mais completo que o host
   * faz a consulta no systemd-resolv
   * **dig nome_destino +short:** mostra somente o ip resolvido
