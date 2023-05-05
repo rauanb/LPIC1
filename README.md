@@ -1069,8 +1069,7 @@
   * um novo login também abre um novo bash
   * um alias para todos os usuários pode ser criado aqui
 * **/etc/inputrc:** configurações de terminal, atalhos, modos de escrita
-* **etc/skel/:** diretório contendo os arquivos que serão criados na home de cada novo usuário
-
+* **/etc/skel/:** diretório contendo os arquivos que serão criados na home de cada novo usuário
   * esqueleto da home
   * chamar a função no final do arquivo **.profile** para ser executada no login de todos os usuários criados a partir deste momento
 * **/home:** arquivos de configuração local (de cada usuário)
@@ -1104,7 +1103,8 @@
   * **if condição; then execução fi:** estrutura condicional do if
     * **[ -f /etc/bash.bashrc ]:** teste se existe o arquivo (atenção aos espaços entre os colchetes)
       * **if test -f /etc/bash.bashrc** tem o mesmo resultado
-    * **[-d /etc/profile.d]:** teste se existe o diretório
+    * **[ -d /etc/profile.d ]:** teste se existe o diretório
+    * **-e:** verifica se existe, tanto para arquivo quanto para diretório
     * **-r** permissão de leitura **-w** permissão de escrita **-x** permissão de execução
     * **-eq** = **ne** \!= **-gt** > **-lt** < **-ge** >= **-le** <=
   * **case $VAR1 in caso1) execução ;; caso2|caso3) execução ;; *) execução esac**
@@ -1208,14 +1208,15 @@
     * usuário de aplicações não podem fazer login **~>** /bin/false
 * **/etc/shadow:** arquivo contendo as senhas hasheadas dos usuários
   * SOMENTE **ROOT** PODE ACESSAR
-
+  * **nome:senha_hasheada:ultima_alteração_senha:mínimo_senha:máximo_senha:aviso:delay:expiração_conta**
+  * todas as datas são em dias passados desde 01/01/1970
+  
 * **/etc/group:**
 
   * **nome:senha:GID:usuários_fora_o_padrão**
   * os usuários que aparecerem aqui têm esse grupo como secundário
 * **/etc/gshadow:** arquivo contendo as senhas hasheadas do grupos
-* **etc/login.defs:** arquivo contendo configurações de login
-
+* **/etc/login.defs:** arquivo contendo configurações de login
   * **CREATE_HOME:** parâmetro para criar home ao criar um novo usuário
 * **useradd usuario:** cria o usuário, cria o grupo com o mesmo nome, porém não define senha
   * sem senha o usuário não pode logar
@@ -1311,12 +1312,13 @@
   * **segunda:** 1 **terça:** 2 **quarta:** 3 **quinta:** 4 **sexta:** 5 **sábado:** 6 **domingo:** 7 e 0
 
 * arquivos de permissão e proibição do cron
-
   * não existem por padrão **~>** todos usuários podem usar o cron **DEBIAN**
     * para **RED HAT**, se não existirem, somente o root pode usar o cron
   * **/etc/cron.deny:** arquivo que proibe o uso do cron para os usuários listados
   * **/etc/cron.allow:** arquivo que permite o uso do cron **SOMENTE PARA OS USUÁRIOS LISTADOS**
     * com exceção ao root, que sempre vai poder usar
+  * se um usuário estiver no allow **E** no deny **~>** pode usar normalmente 
+  
 
 #### AT
 
@@ -1374,6 +1376,7 @@
   * **hwclock --set --date "mes/dia/ano hora:min":** define a data/hora do hardware
 * **date:** data, horário e timezone do sistema
   * **date -u:** hora em UTC
+  * **date +%D:** mm/dd/yy
   * **date +%Y:** Ano com 4 dígitos
   * **date +%y:** Ano com 2 dígitos
   * **date +%H:%M:** hora:minutos
@@ -1399,7 +1402,7 @@
   * **/etc/rsyslog.conf:** arquivo de configuração
   * **/etc/rsyslog.d/:** diretório contendo arquivos de configuração que programas podem definir
     * no arquivo default:
-      * **facility.priority destino:** gerador (programa), prioridade (erro, aviso, info) e arquivo.log
+      * **facility.priority @destino:** gerador (programa), prioridade (erro, aviso, info) e arquivo.log
       * ao definir a prioridade, vai logar tudo a partir dela
         * warning **~>** warning, error, crit, alert e emerg
         * crit **~>** crit, alert e emerg
@@ -1450,6 +1453,7 @@
 * **/etc/aliases:** arquivo que contém os aliases de email
   * **alias:	email**
   * após alterar precisa dar o comando **newaliases**
+  * **unalias:** remove o alias
 * **/home/usuário/.forward:** arquivo que pode ser criado por qualquer usuário para redirecionar emails
   * arquivo de texto contendo somente os destinos, um por linha
 * **mailq:** mostra a fila de emails
@@ -1470,10 +1474,12 @@
 * **lpstat -t:** mostra informações gerais do cups (deamon, impressora padrão e status das impressoras)
 * **lpstat -a:** mostra o status das impressoras
 * **lpq:** mostra a fila da impressora padrão
+  * **lpq -a:** mostra a fila de impressão de todas as impressoras
   * **lpq -P nome_impressora:** mostra a fila da impressora especificada
   * **/var/spool/cups:** diretório dos arquivos
     * começando com **c:** impressos
     * começando com **d:** fila
+  
 * **lpadmin -p Nome_Impressora -E -v "device_impressora" -m driver_impressora**
   * instalação de impressora
   * **-E:** ativa (enable)
@@ -1567,7 +1573,7 @@
 * **/etc/hostname:** nome da máquina
   * **hostnamectl set-hostname novo_nome:** altera o nome da máquina
 * **/etc/hosts:** arquivo de hosts
-* **/etc/nsswitch.conf**
+* **/etc/nsswitch.conf:** arquivo de configuação que informa às bibliotecas que bases usar para consultar informações de usuários e hostnames
   * **hosts: files dns:** procura primeiro nos arquivos internos (**hosts primeiro**) e depois em um dns
 * **/etc/networks:** semelhante ao hosts, mas para redes
 * **/etc/resolv.conf:** determina o servidor DNS usado
@@ -1583,7 +1589,7 @@
   * **nmcli con down "nome_conexão":** encerra a conexão (up reconecta)
   * **nmcli con add type ethernet con-name nome_rede ifname dispositivo ip4 ip_fixo/CIDR gw4 ip_gateway:** cria uma nova conexão ethernet com ip fixo
   * **nmcli device wifi list:** lista os wifi disponíveis com nome, signal, segurança
-  * **nmcli device wifi scan:** escaneia os wifis disponíveis
+  * **nmcli device wifi rescan:** escaneia os wifis disponíveis
   * **nmcli device wifi connect SSID_wifi password senha_wifi:** conecta no wifi
 * **HAL:** Hardware Abstraction Layer
 * **ifup:** sobe uma interface
@@ -1714,6 +1720,7 @@
 * **last:** histórico de login dos usuários com tempo de uso
   * usa o arquivo **/var/log/wtmp**
   * **last usuário:** mostra o histórico do usuário especificado
+* **last -nX:** mostra os últimos **X** logins realizados no sistema
 * **lastb:** histórico de tentativas falhas de login
   * usa o arquivo **/var/log/btmp**
 * **lastlog:** mostra o último login de todos os usuários do passwd
@@ -1728,13 +1735,13 @@
 * **passwd -wY usuário:** avisa o usuário faltando **Y** dias para a senha expirar
 * **passwd -iY usuário:** define para **Y** dias o bloqueio da conta após a expiração da senha
 * **passwd -l usuário:** bloqueia a conta
-  * usuário fica com **!** no início da senha no **/etc/shadow**
+  * usuário fica com **!** no início da senha no **/etc/shadow** (igual quando não tem senha definida)
   * **-u:** desbloqueia
 * **usermod -L usuário:** bloqueia a conta
   * **-U:** desbloqueia
 * **find / -perm -4000 -ls:** lista os comandos que tem permissão SUID
-* **find / -perm -2000 -ls:** lsita os comandos que tem permissão SGID
-* **find / -nouser -ls:** lsita os comandos que não têm usuário associado (usuários apagados)
+* **find / -perm -2000 -ls:** lista os comandos que tem permissão SGID
+* **find / -nouser -ls:** lista os comandos que não têm usuário associado (usuários apagados)
 * **ulimit:** limite de recursos por usuário
   * válido somente na seção **~>** utilizar o arquivo **/etc/security/limits.conf** para ser permanente
   * **ulimit -a:** mostra todos os limites atuais da seção
@@ -1745,7 +1752,7 @@
   * **lsof -i :serviço:** lista somente as conexões do serviço especificado (exemplo https)
 * **nmap destino:** escaneia as portas ativas
   * destino pode ser o localhost
-  * **namp -O destino:** mostra detalhes do Sistema Operacional
+  * **nmap -O destino:** mostra detalhes do Sistema Operacional
   * **nmap -sT destino:** escaneia somente portas TCP
   * **nmap -sU destino:** escaneia somente portas UDP
 * **fuser porta/protocolo:** mostra o processo que está usando a porta no protocolo especificado
@@ -1761,7 +1768,7 @@
 * **xinetd:** mesmas funções
   * **/etc/xinetd.d/:** diretório contendo arquivos de configuração
 
-* **systemd.socket:** comuicação entre processos ou entre computadores
+* **systemd.socket:** comunicação entre processos ou entre computadores
   * **systemctl list-units --type=sockets:** mostra os sockets ativos
   * **/lib/systemd/system:** diretório que contém os arquvios **.socket**
   * para cada socket existe um serviço **serviço@.socket**
@@ -1786,7 +1793,7 @@
 * **ssh usuario@servidor** ou **ssh -l usuario servidor:** estabelece a conexão autenticada por senha
   * **ssh servidor:** estabelece a conexão usando o usuário atual do cliente
 * **/home/.ssh/known_hosts:** arquivo contendo as chaves públicas dos servidores já conectados
-* **/home/.ssh/authorized_keys:** arquivo que contém a chave pública do usuário (permissão 600)
+* **/home/.ssh/authorized_keys:** arquivo (no servidor) que contém a chave pública do usuário (permissão 600)
   * usado para autenticação por chave, sem senha
   * **ssh-keygen -t tipo -b tamanho:** gera o par de chaves
     * **tipos:** rsa (mais usado), dsa, ecdsa e ed25519
