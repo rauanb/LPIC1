@@ -1803,6 +1803,14 @@
 * **scp arquivo usuario@servidor:destino:** envia o arquivo local para o destino no servidor
 * **scp usuario@servidor:arquivo destino:** recebe o arquivo do servidor
 
+##### Adicionar chave permanentemente
+
+1. copiar chave para ~/.ssh
+2. criar arquivo **~/.ssh/config** com o conteúdo
+   -  IdentityFile ~/.ssh/nome_chave
+3. alterar permissões do arquivo config
+   - **chmod 600 ~/.ssh/config**
+
 #### GPG
 
 * assinar e criptografar dados
