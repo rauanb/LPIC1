@@ -10,6 +10,7 @@
 
 ### 101.1 - Identificar e editar configurações de hardware
 
+* **cat /etc/*release:** identifica a distribuição
 * **BIOS:** Basic Input Output System, firmware da placa mãe
 * **POST:** Power-On Self-Test, primeira ação
 * **IRQ:** Interrupt Request
